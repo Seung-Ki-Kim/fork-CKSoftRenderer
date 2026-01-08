@@ -1,119 +1,100 @@
 #include "Precompiled.h"
 using namespace CK::DDD;
 
-bool TransformComponent::RemoveFromParent()
-{
-	if (!HasParent())
-	{
-		return true;
-	}
+bool TransformComponent::RemoveFromParent() {
+    if (!HasParent()) {
+        return true;
+    }
 
-	TransformComponent& parent = *GetParentPtr();
-	auto it = std::find(parent.ChildBegin(), parent.ChildEnd(), this);
-	if (it != parent.ChildEnd())
-	{
-		// ¿À·ù ¹ß»ý.
-		return false;
-	}
+    TransformComponent& parent = *GetParentPtr();
+    auto it = std::find(parent.ChildBegin(), parent.ChildEnd(), this);
+    if (it != parent.ChildEnd()) {
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ß»ï¿½.
+        return false;
+    }
 
-	// ºÎ¸ð Æ®·£½ºÆû¿¡¼­ ÀÚ½Ä Á¤º¸¸¦ Á¦°Å
-	parent.GetChildren().erase(it);
+    // ï¿½Î¸ï¿½ Æ®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ú½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    parent.GetChildren().erase(it);
 
-	// ÀÚ½Å¿¡°Ô¼­ ºÎ¸ð Á¤º¸¸¦ Á¦°Å
-	_ParentPtr = nullptr;
-	return true;
+    // ï¿½Ú½Å¿ï¿½ï¿½Ô¼ï¿½ ï¿½Î¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    _ParentPtr = nullptr;
+    return true;
 }
 
-bool TransformComponent::SetRoot()
-{
-	if (!RemoveFromParent())
-	{
-		return false;
-	}
+bool TransformComponent::SetRoot() {
+    if (!RemoveFromParent()) {
+        return false;
+    }
 
-	// ·ÎÄÃ Á¤º¸¸¦ ¿ùµå Á¤º¸·Î º¯°æ
-	UpdateLocal();
-	return true;
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    UpdateLocal();
+    return true;
 }
 
-FORCEINLINE TransformComponent& TransformComponent::GetRoot()
-{
-	TransformComponent* parent = nullptr;
-	TransformComponent* current = this;
-	while ((parent = current->GetParentPtr()) != nullptr)
-	{
-		current = parent;
-	}
+FORCEINLINE TransformComponent& TransformComponent::GetRoot() {
+    TransformComponent* parent = nullptr;
+    TransformComponent* current = this;
+    while ((parent = current->GetParentPtr()) != nullptr) {
+        current = parent;
+    }
 
-	return *current;
+    return *current;
 }
 
-bool TransformComponent::SetParent(TransformComponent& InTransform)
-{
-	// ÇöÀç ³ëµå¸¦ ºÎ¸ð·ÎºÎÅÍ ºÐ¸® ( ¿ùµå = ·ÎÄÃ )
-	if (!SetRoot())
-	{
-		return false;
-	}
+bool TransformComponent::SetParent(TransformComponent& InTransform) {
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½å¸¦ ï¿½Î¸ï¿½Îºï¿½ï¿½ï¿½ ï¿½Ð¸ï¿½ ( ï¿½ï¿½ï¿½ï¿½ = ï¿½ï¿½ï¿½ï¿½ )
+    if (!SetRoot()) {
+        return false;
+    }
 
-	// »õ·Î¿î ºÎ¸ðÀÇ ÀÚ½ÄÀ¸·Î µî·Ï. ÀÌ¹Ì ÀÖ´Â °æ¿ì¿¡´Â ¹®Á¦°¡ ÀÖ´Â »óÈ².
-	auto it = std::find(InTransform.ChildBegin(), InTransform.ChildEnd(), this);
-	if (it != InTransform.ChildEnd())
-	{
-		return false;
-	}
+    // ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½Î¸ï¿½ï¿½ï¿½ ï¿½Ú½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½. ï¿½Ì¹ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ì¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½È².
+    auto it = std::find(InTransform.ChildBegin(), InTransform.ChildEnd(), this);
+    if (it != InTransform.ChildEnd()) {
+        return false;
+    }
 
-	// »õ·Î¿î Æ®·£½ºÆû ³ëµå·Î ºÎ¸ð Àç¼³Á¤
-	InTransform.GetChildren().emplace_back(this);
-	_ParentPtr = &InTransform;
-	TransformComponent& newParent = *_ParentPtr;
+    // ï¿½ï¿½ï¿½Î¿ï¿½ Æ®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Î¸ï¿½ ï¿½ç¼³ï¿½ï¿½
+    InTransform.GetChildren().emplace_back(this);
+    _ParentPtr = &InTransform;
+    TransformComponent& newParent = *_ParentPtr;
 
-	// ÀÚ½ÅÀÇ ·ÎÄÃ°ú ¸ðµç ÀÚ½ÄÀÇ ¿ùµå¸¦ ¾÷µ¥ÀÌÆ®ÇÑ´Ù.
-	UpdateLocal();
+    // ï¿½Ú½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ ï¿½Ú½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½å¸¦ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½Ñ´ï¿½.
+    UpdateLocal();
 
-	return true;
+    return true;
 }
 
-// ¿ùµå Á¤º¸, È¤Àº ºÎ¸ð°¡ º¯°æµÇ¸é ÀÌ¸¦ ±â¹ÝÀ¸·Î ·ÎÄÃ Á¤º¸¸¦ º¯°æ
-void TransformComponent::UpdateLocal()
-{
-	if (HasParent())
-	{
-		const TransformComponent& parent = *GetParentPtr();
-		_LocalTransform = _WorldTransform.WorldToLocal(parent.GetWorldTransform());
-	}
-	else
-	{
-		_LocalTransform = _WorldTransform;
-	}
+// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½, È¤ï¿½ï¿½ ï¿½Î¸ï¿½ ï¿½ï¿½ï¿½ï¿½Ç¸ï¿½ ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+void TransformComponent::UpdateLocal() {
+    if (HasParent()) {
+        const TransformComponent& parent = *GetParentPtr();
+        _LocalTransform = _WorldTransform.WorldToLocal(parent.GetWorldTransform());
+    }
+    else {
+        _LocalTransform = _WorldTransform;
+    }
 
-	// ¿ùµå Á¤º¸ º¯°æ ½Ã ÀÚ½ÄÀÇ ¿ùµå Á¤º¸µµ ¾÷µ¥ÀÌÆ® ( ·ÎÄÃ Á¤º¸´Â º¯ÇÔ ¾øÀ½. )
-	UpdateChildrenWorld();
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ú½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ( ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½. )
+    UpdateChildrenWorld();
 }
 
-// ·ÎÄÃ Á¤º¸°¡ ¾÷µ¥ÀÌÆ® µÇ¾î¼­ ¿ùµå Á¤º¸¸¸ ´Ù½Ã °è»ê
-void TransformComponent::UpdateWorld()
-{
-	// ÀÚ½ÅÀÇ ¿ùµå Á¤º¸ ¾÷µ¥ÀÌÆ®
-	if (HasParent())
-	{
-		const TransformComponent& parent = *GetParentPtr();
-		_WorldTransform = _LocalTransform.LocalToWorld(parent.GetWorldTransform());
-	}
-	else
-	{
-		_WorldTransform = _LocalTransform;
-	}
+// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½Ç¾î¼­ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½
+void TransformComponent::UpdateWorld() {
+    // ï¿½Ú½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
+    if (HasParent()) {
+        const TransformComponent& parent = *GetParentPtr();
+        _WorldTransform = _LocalTransform.LocalToWorld(parent.GetWorldTransform());
+    }
+    else {
+        _WorldTransform = _LocalTransform;
+    }
 
-	// ¿ùµå Á¤º¸ º¯°æ ½Ã ÀÚ½ÄÀÇ ¿ùµå Á¤º¸µµ ¾÷µ¥ÀÌÆ® ( ·ÎÄÃ Á¤º¸´Â º¯ÇÔ ¾øÀ½. )
-	UpdateChildrenWorld();
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ú½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ( ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½. )
+    UpdateChildrenWorld();
 }
 
-void TransformComponent::UpdateChildrenWorld()
-{
-	for (auto it = ChildBegin(); it != ChildEnd(); ++it)
-	{
-		(*it)->UpdateWorld();
-	}
+void TransformComponent::UpdateChildrenWorld() {
+    for (auto it = ChildBegin(); it != ChildEnd(); ++it) {
+        (*it)->UpdateWorld();
+    }
 }
-

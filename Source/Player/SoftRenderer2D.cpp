@@ -4,8 +4,7 @@
 using namespace CK::DD;
 
 // 그리드 그리기
-void SoftRenderer::DrawGrid2D()
-{
+void SoftRenderer::DrawGrid2D() {
 	auto& r = GetRenderer();
 	const auto& g = Get2DGameEngine();
 
@@ -22,16 +21,15 @@ void SoftRenderer::DrawGrid2D()
 
 	// 그리드가 시작되는 좌하단 좌표 값 계산
 	Vector2 minPos = viewPos - extent;
-	Vector2 minGridPos = Vector2(ceilf(minPos.X / (float)_Grid2DUnit), ceilf(minPos.Y / (float)_Grid2DUnit)) * (float)_Grid2DUnit;
+	Vector2 minGridPos = Vector2(ceilf(minPos.X / (float)_Grid2DUnit), ceilf(minPos.Y / (float)_Grid2DUnit)) * (float)
+		_Grid2DUnit;
 	ScreenPoint gridBottomLeft = ScreenPoint::ToScreenCoordinate(_ScreenSize, minGridPos - viewPos);
 
-	for (int ix = 0; ix < xGridCount; ++ix)
-	{
+	for (int ix = 0; ix < xGridCount; ++ix) {
 		r.DrawFullVerticalLine(gridBottomLeft.X + ix * _Grid2DUnit, gridColor);
 	}
 
-	for (int iy = 0; iy < yGridCount; ++iy)
-	{
+	for (int iy = 0; iy < yGridCount; ++iy) {
 		r.DrawFullHorizontalLine(gridBottomLeft.Y - iy * _Grid2DUnit, gridColor);
 	}
 
@@ -45,18 +43,17 @@ void SoftRenderer::DrawGrid2D()
 Vector2 deltaPosition;
 
 // 게임 로직
-void SoftRenderer::Update2D(float InDeltaSeconds)
-{
+void SoftRenderer::Update2D(float InDeltaSeconds) {
 	auto& g = Get2DGameEngine();
 	const InputManager& input = g.GetInputManager();
 
 	static float moveSpeed = 100.f;
-	deltaPosition = Vector2(input.GetAxis(InputAxis::XAxis), input.GetAxis(InputAxis::YAxis)) * moveSpeed * InDeltaSeconds;
+	deltaPosition = Vector2(input.GetAxis(InputAxis::XAxis), input.GetAxis(InputAxis::YAxis)) * moveSpeed *
+		InDeltaSeconds;
 }
 
 // 렌더링 로직
-void SoftRenderer::Render2D()
-{
+void SoftRenderer::Render2D() {
 	auto& r = GetRenderer();
 	const auto& g = Get2DGameEngine();
 
@@ -74,8 +71,7 @@ void SoftRenderer::Render2D()
 		centerPoint + Vector2(0.f, 1.f)
 	};
 
-	for (const auto& p : points)
-	{
+	for (const auto& p : points) {
 		r.DrawPoint(p, LinearColor::Black);
 	}
 
@@ -84,10 +80,9 @@ void SoftRenderer::Render2D()
 	r.PushStatisticText("Screen : (" + std::to_string(screenPoint.X) + "," + std::to_string(screenPoint.Y) + ")");
 }
 
-void SoftRenderer::DrawMesh2D(const class DD::Mesh& InMesh, const Matrix3x3& InMatrix, const LinearColor& InColor)
-{
+void SoftRenderer::DrawMesh2D(const class DD::Mesh& InMesh, const Matrix3x3& InMatrix, const LinearColor& InColor) {
 }
 
-void SoftRenderer::DrawTriangle2D(std::vector<DD::Vertex2D>& InVertices, const LinearColor& InColor, FillMode InFillMode)
-{
+void SoftRenderer::DrawTriangle2D(std::vector<DD::Vertex2D>& InVertices, const LinearColor& InColor,
+                                  FillMode InFillMode) {
 }

@@ -1,45 +1,39 @@
 #pragma once
 
-namespace CK
-{
-namespace DD
-{
+namespace CK {
+    namespace DD {
+        class Mesh {
+        public:
+            Mesh() = default;
 
-class Mesh
-{
-public:
-	Mesh() = default;
-
-	// ¼Ó¼º °ü·Ã ÇÔ¼ö
-	void SetMeshType(const MeshType & _InMeshType) { _MeshType = _InMeshType; }
+            // ï¿½Ó¼ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
+            void SetMeshType(const MeshType& _InMeshType) { _MeshType = _InMeshType; }
 	FORCEINLINE bool HasColor() const { return _Colors.size() > 0; }
 	FORCEINLINE bool HasUV() const { return _UVs.size() > 0; }
-	std::vector<Vector2>& GetVertices() { return _Vertices; }
-	const std::vector<Vector2>& GetVertices() const { return _Vertices; }
-	std::vector<size_t>& GetIndices() { return _Indices; }
-	const std::vector<size_t>& GetIndices() const { return _Indices; }
-	std::vector<LinearColor>& GetColors() { return _Colors; }
-	const std::vector<LinearColor>& GetColors() const { return _Colors; }
-	std::vector<Vector2>& GetUVs() { return _UVs; }
-	const std::vector<Vector2>& GetUVs() const { return _UVs; }
+            std::vector<Vector2>& GetVertices() { return _Vertices; }
+            const std::vector<Vector2>& GetVertices() const { return _Vertices; }
+            std::vector<size_t>& GetIndices() { return _Indices; }
+            const std::vector<size_t>& GetIndices() const { return _Indices; }
+            std::vector<LinearColor>& GetColors() { return _Colors; }
+            const std::vector<LinearColor>& GetColors() const { return _Colors; }
+            std::vector<Vector2>& GetUVs() { return _UVs; }
+            const std::vector<Vector2>& GetUVs() const { return _UVs; }
 
-	// ¹Ù¿îµù º¼·ý °ü·Ã ÇÔ¼ö
-	void CalculateBounds();
-	const Circle& GetCircleBound() const { return _CircleBound; }
-	const Rectangle& GetRectBound() const { return _RectBound; }
+            // ï¿½Ù¿ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
+            void CalculateBounds();
+            const Circle& GetCircleBound() const { return _CircleBound; }
+            const Rectangle& GetRectBound() const { return _RectBound; }
 
-private:
-	std::vector<Vector2> _Vertices;
-	std::vector<size_t> _Indices;
-	std::vector<LinearColor> _Colors;
-	std::vector<Vector2> _UVs;
+        private:
+            std::vector<Vector2> _Vertices;
+            std::vector<size_t> _Indices;
+            std::vector<LinearColor> _Colors;
+            std::vector<Vector2> _UVs;
 
-private:
-	MeshType _MeshType = MeshType::Normal;
-	Circle _CircleBound;
-	Rectangle _RectBound;
-};
-
+        private:
+            MeshType _MeshType = MeshType::Normal;
+            Circle _CircleBound;
+            Rectangle _RectBound;
+        };
+    }
 }
-}
-

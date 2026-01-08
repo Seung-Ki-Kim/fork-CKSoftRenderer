@@ -1,39 +1,35 @@
 #pragma once
 
-namespace CK
-{
-namespace DD
-{
+namespace CK {
+    namespace DD {
+        class CameraObject {
+        public:
+            CameraObject() = default;
 
-class CameraObject
-{
-public:
-	CameraObject() = default;
-	~CameraObject() { }
+            ~CameraObject() {
+            }
 
-public:
-	// Æ®·£½ºÆû
-	TransformComponent& GetTransform() { return _Transform; }
-	const TransformComponent& GetTransform() const { return _Transform; }
+        public:
+            // Æ®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            TransformComponent& GetTransform() { return _Transform; }
+            const TransformComponent& GetTransform() const { return _Transform; }
 
-	// Ä«¸Þ¶ó °ªÀ» °¡Á®¿À´Â ÇÔ¼ö
-	const ScreenPoint& GetViewportSize() const { return _ViewportSize; }
+            // Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
+            const ScreenPoint& GetViewportSize() const { return _ViewportSize; }
 
-	// Ä«¸Þ¶ó °ªÀ» ¼³Á¤ÇÏ´Â ÇÔ¼ö
-	void SetViewportSize(const ScreenPoint & InViewportSize) { _ViewportSize = InViewportSize; }
+            // Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½
+            void SetViewportSize(const ScreenPoint& InViewportSize) { _ViewportSize = InViewportSize; }
 
-	// Çà·Ä »ý¼º
+            // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	FORCEINLINE Matrix3x3 GetViewMatrix() const;
 
-private:
-	TransformComponent _Transform;
-	ScreenPoint _ViewportSize;
-};
+        private:
+            TransformComponent _Transform;
+            ScreenPoint _ViewportSize;
+        };
 
-FORCEINLINE Matrix3x3 CameraObject::GetViewMatrix() const
-{
-	return Matrix3x3(Vector3::UnitX, Vector3::UnitY, Vector3(-_Transform.GetPosition()));
-}
-
-}
+FORCEINLINE Matrix3x3 CameraObject::GetViewMatrix() const {
+            return Matrix3x3(Vector3::UnitX, Vector3::UnitY, Vector3(-_Transform.GetPosition()));
+        }
+    }
 }

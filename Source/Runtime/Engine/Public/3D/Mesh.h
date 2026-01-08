@@ -1,70 +1,67 @@
 #pragma once
 
-namespace CK
-{
-namespace DDD
-{
+namespace CK {
+    namespace DDD {
+        struct Weight {
+            std::vector<std::string> Bones;
+            std::vector<float> Values;
+        };
 
-struct Weight
-{
-	std::vector<std::string> Bones;
-	std::vector<float> Values;
-};
+        class Mesh {
+        public:
+            Mesh() = default;
 
-class Mesh
-{
-public:
-	Mesh() = default;
-
-	// ¼Ó¼º °ü·Ã ÇÔ¼ö
-	void SetMeshType(const MeshType& _InMeshType) { _MeshType = _InMeshType; }
+            // ï¿½Ó¼ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
+            void SetMeshType(const MeshType& _InMeshType) { _MeshType = _InMeshType; }
 	FORCEINLINE bool HasColor() const { return _Colors.size() > 0; }
 	FORCEINLINE bool HasUV() const { return _UVs.size() > 0; }
-	std::vector<Vector3>& GetVertices() { return _Vertices; }
-	const std::vector<Vector3>& GetVertices() const { return _Vertices; }
-	std::vector<size_t>& GetIndices() { return _Indices; }
-	const std::vector<size_t>& GetIndices() const { return _Indices; }
-	std::vector<LinearColor>& GetColors() { return _Colors; }
-	const std::vector<LinearColor>& GetColors() const { return _Colors; }
-	std::vector<Vector2>& GetUVs() { return _UVs; }
-	const std::vector<Vector2>& GetUVs() const { return _UVs; }
+            std::vector<Vector3>& GetVertices() { return _Vertices; }
+            const std::vector<Vector3>& GetVertices() const { return _Vertices; }
+            std::vector<size_t>& GetIndices() { return _Indices; }
+            const std::vector<size_t>& GetIndices() const { return _Indices; }
+            std::vector<LinearColor>& GetColors() { return _Colors; }
+            const std::vector<LinearColor>& GetColors() const { return _Colors; }
+            std::vector<Vector2>& GetUVs() { return _UVs; }
+            const std::vector<Vector2>& GetUVs() const { return _UVs; }
 
-	// ¹Ù¿îµù º¼·ý °ü·Ã ÇÔ¼ö
-	void CalculateBounds();
-	const Sphere& GetSphereBound() const { return _SphereBound; }
-	const Box& GetBoxBound() const { return _BoxBound; }
+            // ï¿½Ù¿ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
+            void CalculateBounds();
+            const Sphere& GetSphereBound() const { return _SphereBound; }
+            const Box& GetBoxBound() const { return _BoxBound; }
 
-	// ½ºÄÌ·¹Å» ¾Ö´Ï¸ÞÀÌ¼Ç °ü·Ã ÇÔ¼ö
+            // ï¿½ï¿½ï¿½Ì·ï¿½Å» ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
 	FORCEINLINE bool IsSkinnedMesh() const { return _MeshType == MeshType::Skinned; }
 	FORCEINLINE bool HasBone(const std::string& InBoneName) const { return _Bones.find(InBoneName) != _Bones.end(); }
 
-	std::vector<Weight>& GetWeights() { return _Weights; }
-	const std::vector<Weight>& GetWeights() const { return _Weights; }
+            std::vector<Weight>& GetWeights() { return _Weights; }
+            const std::vector<Weight>& GetWeights() const { return _Weights; }
 
-	std::vector<BYTE>& GetConnectedBones() { return _ConnectedBones; }
-	const std::vector<BYTE>& GetConnectedBones() const { return _ConnectedBones; }
+            std::vector<BYTE>& GetConnectedBones() { return _ConnectedBones; }
+            const std::vector<BYTE>& GetConnectedBones() const { return _ConnectedBones; }
 
-	Bone& GetBone(const std::string& InBoneName) { return _Bones.at(InBoneName); }
-	const Bone& GetBone(const std::string& InBoneName) const { return _Bones.at(InBoneName); }
-	std::unordered_map<std::string, Bone>& GetBones() { return _Bones; }
-	const std::unordered_map<std::string, Bone>& GetBones() const { return _Bones; }
-	const Transform& GetBindPose(const std::string& InBoneName) const { return _Bones.at(InBoneName).GetBindPose(); }
+            Bone& GetBone(const std::string& InBoneName) { return _Bones.at(InBoneName); }
+            const Bone& GetBone(const std::string& InBoneName) const { return _Bones.at(InBoneName); }
+            std::unordered_map<std::string, Bone>& GetBones() { return _Bones; }
+            const std::unordered_map<std::string, Bone>& GetBones() const { return _Bones; }
 
-private:
-	std::vector<Vector3> _Vertices;
-	std::vector<size_t> _Indices;
-	std::vector<LinearColor> _Colors;
-	std::vector<Vector2> _UVs;
+            const Transform& GetBindPose(const std::string& InBoneName) const {
+                return _Bones.at(InBoneName).GetBindPose();
+            }
 
-	std::vector<BYTE> _ConnectedBones;
-	std::vector<Weight> _Weights;
-	std::unordered_map<std::string, Bone> _Bones;
+        private:
+            std::vector<Vector3> _Vertices;
+            std::vector<size_t> _Indices;
+            std::vector<LinearColor> _Colors;
+            std::vector<Vector2> _UVs;
 
-private:
-	MeshType _MeshType = MeshType::Normal;
-	Sphere _SphereBound;
-	Box _BoxBound;
-};
+            std::vector<BYTE> _ConnectedBones;
+            std::vector<Weight> _Weights;
+            std::unordered_map<std::string, Bone> _Bones;
 
-}
+        private:
+            MeshType _MeshType = MeshType::Normal;
+            Sphere _SphereBound;
+            Box _BoxBound;
+        };
+    }
 }

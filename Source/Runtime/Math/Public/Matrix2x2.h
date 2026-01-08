@@ -1,88 +1,80 @@
 #pragma once
 
-namespace CK
-{
+namespace CK {
+    struct Matrix2x2 {
+    public:
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 
+        FORCEINLINE constexpr Matrix2x2() = default;
 
-struct Matrix2x2
-{
-public:
-	// »ý¼ºÀÚ 
-	FORCEINLINE constexpr Matrix2x2() = default;
-	FORCEINLINE explicit constexpr Matrix2x2(const Vector2& InCol0, const Vector2& InCol1) { Cols = { InCol0, InCol1 }; }
+        FORCEINLINE explicit constexpr Matrix2x2(const Vector2& InCol0, const Vector2& InCol1) {
+            Cols = {InCol0, InCol1};
+        }
 
-	// ¿¬»êÀÚ 
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 
 	FORCEINLINE const Vector2& operator[](BYTE InIndex) const;
 	FORCEINLINE Vector2& operator[](BYTE InIndex);
 	FORCEINLINE Matrix2x2 operator*(float InScalar) const;
 	FORCEINLINE Matrix2x2 operator*(const Matrix2x2& InMatrix) const;
 	FORCEINLINE Vector2 operator*(const Vector2& InVector) const;
-	FORCEINLINE friend Vector2 operator*=(Vector2& InVector, const Matrix2x2& InMatrix)
-	{
-		InVector = InMatrix * InVector;
-		return InVector;
-	}
 
-	// ¸â¹öÇÔ¼ö 
+	FORCEINLINE friend Vector2 operator*=(Vector2& InVector, const Matrix2x2& InMatrix) {
+            InVector = InMatrix * InVector;
+            return InVector;
+        }
+
+        // ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ 
 	FORCEINLINE void SetIdentity();
 	FORCEINLINE Matrix2x2 Tranpose() const;
 
-	std::vector<std::string> ToStrings() const;
+        std::vector<std::string> ToStrings() const;
 
-	// Á¤Àû¸â¹öº¯¼ö 
-	static const Matrix2x2 Identity;
-	static constexpr BYTE Rank = 2;
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 
+        static const Matrix2x2 Identity;
+        static constexpr BYTE Rank = 2;
 
-	// ¸â¹öº¯¼ö 
-	std::array<Vector2, Rank> Cols = { Vector2::UnitX, Vector2::UnitY };
-};
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 
+        std::array<Vector2, Rank> Cols = {Vector2::UnitX, Vector2::UnitY};
+    };
 
-FORCEINLINE void Matrix2x2::SetIdentity()
-{
-	*this = Matrix2x2::Identity;
-}
+FORCEINLINE void Matrix2x2::SetIdentity() {
+        *this = Matrix2x2::Identity;
+    }
 
-FORCEINLINE Matrix2x2 Matrix2x2::Tranpose() const
-{
-	return Matrix2x2(
-		Vector2(Cols[0].X, Cols[1].X),
-		Vector2(Cols[0].Y, Cols[1].Y)
-	);
-}
+FORCEINLINE Matrix2x2 Matrix2x2::Tranpose() const {
+        return Matrix2x2(
+            Vector2(Cols[0].X, Cols[1].X),
+            Vector2(Cols[0].Y, Cols[1].Y)
+        );
+    }
 
-FORCEINLINE const Vector2& Matrix2x2::operator[](BYTE InIndex) const
-{
-	return (InIndex < Rank) ? Cols[InIndex] : Cols[0];
-}
+FORCEINLINE const Vector2& Matrix2x2::operator[](BYTE InIndex) const {
+        return (InIndex < Rank) ? Cols[InIndex] : Cols[0];
+    }
 
-FORCEINLINE Vector2& Matrix2x2::operator[](BYTE InIndex)
-{
-	return (InIndex < Rank) ? Cols[InIndex] : Cols[0];
-}
+FORCEINLINE Vector2& Matrix2x2::operator[](BYTE InIndex) {
+        return (InIndex < Rank) ? Cols[InIndex] : Cols[0];
+    }
 
-FORCEINLINE Matrix2x2 Matrix2x2::operator*(float InScalar) const
-{
-	return Matrix2x2(
-		Cols[0] * InScalar,
-		Cols[1] * InScalar
-	);
-}
+FORCEINLINE Matrix2x2 Matrix2x2::operator*(float InScalar) const {
+        return Matrix2x2(
+            Cols[0] * InScalar,
+            Cols[1] * InScalar
+        );
+    }
 
-FORCEINLINE Matrix2x2 Matrix2x2::operator*(const Matrix2x2 &InMatrix) const
-{
-	Matrix2x2 tpMat = Tranpose();
-	return Matrix2x2(
-		Vector2(tpMat[0].Dot(InMatrix[0]), tpMat[1].Dot(InMatrix[0])),
-		Vector2(tpMat[0].Dot(InMatrix[1]), tpMat[1].Dot(InMatrix[1]))
-	);
-}
+FORCEINLINE Matrix2x2 Matrix2x2::operator*(const Matrix2x2& InMatrix) const {
+        Matrix2x2 tpMat = Tranpose();
+        return Matrix2x2(
+            Vector2(tpMat[0].Dot(InMatrix[0]), tpMat[1].Dot(InMatrix[0])),
+            Vector2(tpMat[0].Dot(InMatrix[1]), tpMat[1].Dot(InMatrix[1]))
+        );
+    }
 
-FORCEINLINE Vector2 Matrix2x2::operator*(const Vector2& InVector) const
-{
-	Matrix2x2 tpMat = Tranpose();
-	return Vector2(
-		tpMat[0].Dot(InVector),
-		tpMat[1].Dot(InVector)
-	);
-}
-
+FORCEINLINE Vector2 Matrix2x2::operator*(const Vector2& InVector) const {
+        Matrix2x2 tpMat = Tranpose();
+        return Vector2(
+            tpMat[0].Dot(InVector),
+            tpMat[1].Dot(InVector)
+        );
+    }
 }

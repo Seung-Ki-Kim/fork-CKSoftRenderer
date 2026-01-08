@@ -1,114 +1,117 @@
 #pragma once
 
-namespace CK
-{
+namespace CK {
+    struct Transform {
+    public:
+        FORCEINLINE constexpr Transform() = default;
 
-struct Transform
-{
-public:
-	FORCEINLINE constexpr Transform() = default;
-	FORCEINLINE constexpr Transform(const Vector3& InPosition) : Position(InPosition) { }
-	FORCEINLINE constexpr Transform(const Vector3& InPosition, const Quaternion& InRotation) : Position(InPosition), Rotation(InRotation) { }
-	FORCEINLINE constexpr Transform(const Vector3& InPosition, const Quaternion& InRotation, const Vector3& InScale) : Position(InPosition), Rotation(InRotation), Scale(InScale) { }
-	Transform(const Matrix4x4& InMatrix);
+        FORCEINLINE constexpr Transform(const Vector3& InPosition) : Position(InPosition) {
+        }
 
-public: // Æ®·£½ºÆû ¼³Á¤ÇÔ¼ö
-	constexpr void SetPosition(const Vector3& InPosition) { Position = InPosition; }
-	constexpr void AddPosition(const Vector3& InDeltaPosition) { Position += InDeltaPosition; }
-	void AddYawRotation(float InDegree)
-	{
-		Rotator r = Rotation.ToRotator();
-		r.Yaw += InDegree;
-		r.Clamp();
-		Rotation = Quaternion(r);
-	}
-	void AddRollRotation(float InDegree)
-	{ 
-		Rotator r = Rotation.ToRotator();
-		r.Roll += InDegree;
-		r.Clamp();
-		Rotation = Quaternion(r);
-	}
-	void AddPitchRotation(float InDegree)
-	{ 
-		Rotator r = Rotation.ToRotator();
-		r.Pitch += InDegree;
-		r.Clamp();
-		Rotation = Quaternion(r);
-	}
+        FORCEINLINE constexpr
+        Transform(const Vector3& InPosition, const Quaternion& InRotation) : Position(InPosition),
+                                                                             Rotation(InRotation) {
+        }
 
-	constexpr void SetRotation(const Rotator& InRotator) { Rotation = Quaternion(InRotator); }
-	void SetRotation(const Matrix3x3& InMatrix) { Rotation = Quaternion(InMatrix); }
-	constexpr void SetRotation(const Quaternion& InQuaternion) { Rotation = InQuaternion; }
-	constexpr void SetScale(const Vector3& InScale) { Scale = InScale; }
+        FORCEINLINE constexpr
+        Transform(const Vector3& InPosition, const Quaternion& InRotation, const Vector3& InScale) :
+            Position(InPosition), Rotation(InRotation), Scale(InScale) {
+        }
+
+        Transform(const Matrix4x4& InMatrix);
+
+    public: // Æ®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½
+        constexpr void SetPosition(const Vector3& InPosition) { Position = InPosition; }
+        constexpr void AddPosition(const Vector3& InDeltaPosition) { Position += InDeltaPosition; }
+
+        void AddYawRotation(float InDegree) {
+            Rotator r = Rotation.ToRotator();
+            r.Yaw += InDegree;
+            r.Clamp();
+            Rotation = Quaternion(r);
+        }
+
+        void AddRollRotation(float InDegree) {
+            Rotator r = Rotation.ToRotator();
+            r.Roll += InDegree;
+            r.Clamp();
+            Rotation = Quaternion(r);
+        }
+
+        void AddPitchRotation(float InDegree) {
+            Rotator r = Rotation.ToRotator();
+            r.Pitch += InDegree;
+            r.Clamp();
+            Rotation = Quaternion(r);
+        }
+
+        constexpr void SetRotation(const Rotator& InRotator) { Rotation = Quaternion(InRotator); }
+        void SetRotation(const Matrix3x3& InMatrix) { Rotation = Quaternion(InMatrix); }
+        constexpr void SetRotation(const Quaternion& InQuaternion) { Rotation = InQuaternion; }
+        constexpr void SetScale(const Vector3& InScale) { Scale = InScale; }
 
 	FORCEINLINE constexpr Vector3 GetXAxis() const { return Rotation * Vector3::UnitX; }
 	FORCEINLINE constexpr Vector3 GetYAxis() const { return Rotation * Vector3::UnitY; }
 	FORCEINLINE constexpr Vector3 GetZAxis() const { return Rotation * Vector3::UnitZ; }
-	constexpr Matrix4x4 GetMatrix() const;
+        constexpr Matrix4x4 GetMatrix() const;
 
 	FORCEINLINE constexpr Vector3 GetPosition() const { return Position; }
 	FORCEINLINE constexpr Quaternion GetRotation() const { return Rotation; }
 	FORCEINLINE constexpr Vector3 GetScale() const { return Scale; }
 
-	// Æ®·£½ºÆû º¯È¯
+        // Æ®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
 	FORCEINLINE constexpr Transform Inverse() const;
 	FORCEINLINE constexpr Transform LocalToWorld(const Transform& InParentWorldTransform) const;
 	FORCEINLINE constexpr Transform WorldToLocal(const Transform& InParentWorldTransform) const;
 
-private: // Æ®·£½ºÆû¿¡ °ü·ÃµÈ º¯¼ö
-	Vector3 Position;
-	Quaternion Rotation;
-	Vector3 Scale = Vector3::One;
+    private: // Æ®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ãµï¿½ ï¿½ï¿½ï¿½ï¿½
+        Vector3 Position;
+        Quaternion Rotation;
+        Vector3 Scale = Vector3::One;
+    };
 
-};
+FORCEINLINE constexpr Matrix4x4 Transform::GetMatrix() const {
+        return Matrix4x4(
+            Vector4(GetXAxis() * Scale.X, false),
+            Vector4(GetYAxis() * Scale.Y, false),
+            Vector4(GetZAxis() * Scale.Z, false),
+            Vector4(Position, true)
+        );
+    }
 
-FORCEINLINE constexpr Matrix4x4 Transform::GetMatrix() const
-{
-	return Matrix4x4(
-		Vector4(GetXAxis() * Scale.X, false),
-		Vector4(GetYAxis() * Scale.Y, false),
-		Vector4(GetZAxis() * Scale.Z, false),
-		Vector4(Position, true)
-	);
-}
+FORCEINLINE constexpr Transform Transform::Inverse() const {
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Æ®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ( ï¿½ï¿½ï¿½ï¿½ï¿½ )
+        Vector3 reciprocalScale = Vector3::Zero;
+        if (!Math::EqualsInTolerance(Scale.X, 0.f)) reciprocalScale.X = 1.f / Scale.X;
+        if (!Math::EqualsInTolerance(Scale.Y, 0.f)) reciprocalScale.Y = 1.f / Scale.Y;
+        if (!Math::EqualsInTolerance(Scale.Z, 0.f)) reciprocalScale.Z = 1.f / Scale.Z;
 
-FORCEINLINE constexpr Transform Transform::Inverse() const
-{
-	// ·ÎÄÃ Á¤º¸¸¸ ³²±â±â À§ÇÑ Æ®·£½ºÆû ( ¿ªÇà·Ä )
-	Vector3 reciprocalScale = Vector3::Zero;
-	if (!Math::EqualsInTolerance(Scale.X, 0.f)) reciprocalScale.X = 1.f / Scale.X;
-	if (!Math::EqualsInTolerance(Scale.Y, 0.f)) reciprocalScale.Y = 1.f / Scale.Y;
-	if (!Math::EqualsInTolerance(Scale.Z, 0.f)) reciprocalScale.Z = 1.f / Scale.Z;
-
-	Transform result;
-	result.Rotation = Rotation.Inverse();
-	result.Scale = reciprocalScale;
-	result.Position = result.Rotation * (result.Scale * -Position);
-	return result;
-}
+        Transform result;
+        result.Rotation = Rotation.Inverse();
+        result.Scale = reciprocalScale;
+        result.Position = result.Rotation * (result.Scale * -Position);
+        return result;
+    }
 
 
-FORCEINLINE constexpr Transform Transform::LocalToWorld(const Transform& InParentWorldTransform) const
-{
-	// ÇöÀç Æ®·£½ºÆû Á¤º¸°¡ ·ÎÄÃÀÎ °æ¿ì
-	Transform result;
-	result.Rotation = InParentWorldTransform.Rotation * Rotation;
-	result.Scale = InParentWorldTransform.Scale * Scale;
-	result.Position = InParentWorldTransform.Rotation.RotateVector(InParentWorldTransform.Scale * Position) + InParentWorldTransform.Position;
-	return result;
-}
+FORCEINLINE constexpr Transform Transform::LocalToWorld(const Transform& InParentWorldTransform) const {
+        // ï¿½ï¿½ï¿½ï¿½ Æ®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+        Transform result;
+        result.Rotation = InParentWorldTransform.Rotation * Rotation;
+        result.Scale = InParentWorldTransform.Scale * Scale;
+        result.Position = InParentWorldTransform.Rotation.RotateVector(InParentWorldTransform.Scale * Position) +
+            InParentWorldTransform.Position;
+        return result;
+    }
 
-FORCEINLINE constexpr Transform Transform::WorldToLocal(const Transform& InParentWorldTransform) const
-{
-	Transform invParent = InParentWorldTransform.Inverse();
+FORCEINLINE constexpr Transform Transform::WorldToLocal(const Transform& InParentWorldTransform) const {
+        Transform invParent = InParentWorldTransform.Inverse();
 
-	// ÇöÀç Æ®·£½ºÆû Á¤º¸°¡ ¿ùµåÀÎ °æ¿ì
-	Transform result;
-	result.Scale = invParent.GetScale() * Scale;
-	result.Rotation = invParent.GetRotation() * Rotation;
-	result.Position = invParent.GetPosition() + Position;
-	return result;
-}
-
+        // ï¿½ï¿½ï¿½ï¿½ Æ®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+        Transform result;
+        result.Scale = invParent.GetScale() * Scale;
+        result.Rotation = invParent.GetRotation() * Rotation;
+        result.Position = invParent.GetPosition() + Position;
+        return result;
+    }
 }

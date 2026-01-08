@@ -1,17 +1,18 @@
 #pragma once
 
-namespace CK
-{
+namespace CK {
+    struct Vector2 {
+    public:
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 
+        FORCEINLINE constexpr Vector2() = default;
 
-struct Vector2
-{
-public:
-	// »ý¼ºÀÚ 
-	FORCEINLINE constexpr Vector2() = default;
-	FORCEINLINE explicit constexpr Vector2(int InX, int InY) : X((float)InX), Y((float)InY) { }
-	FORCEINLINE explicit constexpr Vector2(float InX, float InY) : X(InX), Y(InY) { }
+        FORCEINLINE explicit constexpr Vector2(int InX, int InY) : X((float)InX), Y((float)InY) {
+        }
 
-	// ¿¬»êÀÚ 
+        FORCEINLINE explicit constexpr Vector2(float InX, float InY) : X(InX), Y(InY) {
+        }
+
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 
 	FORCEINLINE constexpr float operator[](BYTE InIndex) const;
 	FORCEINLINE constexpr float& operator[](BYTE InIndex);
 	FORCEINLINE constexpr Vector2 operator-() const;
@@ -25,7 +26,7 @@ public:
 	FORCEINLINE constexpr Vector2& operator+=(const Vector2& InVector);
 	FORCEINLINE constexpr Vector2& operator-=(const Vector2& InVector);
 
-	// ¸â¹öÇÔ¼ö 
+        // ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ 
 	FORCEINLINE float Size() const;
 	FORCEINLINE constexpr float SizeSquared() const;
 	FORCEINLINE Vector2 Normalize() const;
@@ -37,159 +38,132 @@ public:
 	FORCEINLINE Vector2 ToPolarCoordinate() const;
 	FORCEINLINE constexpr Vector2 ToCartesianCoordinate() const;
 
-	std::string ToString() const;
+        std::string ToString() const;
 
-	// Á¤Àû¸â¹öº¯¼ö 
-	static const Vector2 UnitX;
-	static const Vector2 UnitY;
-	static const Vector2 One;
-	static const Vector2 Zero;
-	static constexpr BYTE Dimension = 2;
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 
+        static const Vector2 UnitX;
+        static const Vector2 UnitY;
+        static const Vector2 One;
+        static const Vector2 Zero;
+        static constexpr BYTE Dimension = 2;
 
-	// ¸â¹öº¯¼ö
-	union
-	{
-		struct
-		{
-			float X, Y;
-		};
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        union {
+            struct {
+                float X, Y;
+            };
 
-		std::array<float, Dimension> Scalars = { 0.f, 0.f };
-	};
-};
+            std::array<float, Dimension> Scalars = {0.f, 0.f};
+        };
+    };
 
-FORCEINLINE float Vector2::Size() const
-{
-	return sqrtf(SizeSquared());
-}
+FORCEINLINE float Vector2::Size() const {
+        return sqrtf(SizeSquared());
+    }
 
-FORCEINLINE constexpr float Vector2::SizeSquared() const
-{
-	return X * X + Y * Y;
-}
+FORCEINLINE constexpr float Vector2::SizeSquared() const {
+        return X * X + Y * Y;
+    }
 
-FORCEINLINE Vector2 Vector2::Normalize() const
-{
-	float squareSum = SizeSquared();
-	if (squareSum == 1.f)
-	{
-		return *this;
-	}
-	else if (squareSum == 0.f)
-	{
-		return Vector2::Zero;
-	}
+FORCEINLINE Vector2 Vector2::Normalize() const {
+        float squareSum = SizeSquared();
+        if (squareSum == 1.f) {
+            return *this;
+        }
+        else if (squareSum == 0.f) {
+            return Vector2::Zero;
+        }
 
-	float invLength = Math::InvSqrt(squareSum);
-	return Vector2(X, Y) * invLength;
-}
+        float invLength = Math::InvSqrt(squareSum);
+        return Vector2(X, Y) * invLength;
+    }
 
-FORCEINLINE constexpr float Vector2::operator[](BYTE InIndex) const
-{
-	assert(InIndex < Dimension);
-	return Scalars[InIndex];
-}
+FORCEINLINE constexpr float Vector2::operator[](BYTE InIndex) const {
+        assert(InIndex < Dimension);
+        return Scalars[InIndex];
+    }
 
-FORCEINLINE constexpr float &Vector2::operator[](BYTE InIndex)
-{
-	assert(InIndex < Dimension);
-	return Scalars[InIndex];
-}
+FORCEINLINE constexpr float& Vector2::operator[](BYTE InIndex) {
+        assert(InIndex < Dimension);
+        return Scalars[InIndex];
+    }
 
-FORCEINLINE constexpr Vector2 Vector2::operator-() const
-{
-	return Vector2(-X, -Y);
-}
+FORCEINLINE constexpr Vector2 Vector2::operator-() const {
+        return Vector2(-X, -Y);
+    }
 
-FORCEINLINE constexpr Vector2 Vector2::operator*(float InScalar) const
-{
-	return Vector2(X * InScalar, Y * InScalar);
-}
+FORCEINLINE constexpr Vector2 Vector2::operator*(float InScalar) const {
+        return Vector2(X * InScalar, Y * InScalar);
+    }
 
-FORCEINLINE constexpr Vector2 Vector2::operator/(float InScalar) const
-{
-	return Vector2(X / InScalar, Y / InScalar);
-}
+FORCEINLINE constexpr Vector2 Vector2::operator/(float InScalar) const {
+        return Vector2(X / InScalar, Y / InScalar);
+    }
 
-FORCEINLINE constexpr Vector2 Vector2::operator+(const Vector2& InVector) const
-{
-	return Vector2(X + InVector.X, Y + InVector.Y);
-}
+FORCEINLINE constexpr Vector2 Vector2::operator+(const Vector2& InVector) const {
+        return Vector2(X + InVector.X, Y + InVector.Y);
+    }
 
-FORCEINLINE constexpr Vector2 Vector2::operator-(const Vector2& InVector) const
-{
-	return Vector2(X - InVector.X, Y - InVector.Y);
-}
+FORCEINLINE constexpr Vector2 Vector2::operator-(const Vector2& InVector) const {
+        return Vector2(X - InVector.X, Y - InVector.Y);
+    }
 
-FORCEINLINE constexpr Vector2 Vector2::operator*(const Vector2& InVector) const
-{
-	return Vector2(X * InVector.X, Y * InVector.Y);
-}
+FORCEINLINE constexpr Vector2 Vector2::operator*(const Vector2& InVector) const {
+        return Vector2(X * InVector.X, Y * InVector.Y);
+    }
 
-FORCEINLINE constexpr Vector2& Vector2::operator*=(float InScale)
-{
-	X *= InScale;
-	Y *= InScale;
-	return *this;
-}
+FORCEINLINE constexpr Vector2& Vector2::operator*=(float InScale) {
+        X *= InScale;
+        Y *= InScale;
+        return *this;
+    }
 
-FORCEINLINE constexpr Vector2& Vector2::operator/=(float InScale)
-{
-	X /= InScale;
-	Y /= InScale;
-	return *this;
-}
+FORCEINLINE constexpr Vector2& Vector2::operator/=(float InScale) {
+        X /= InScale;
+        Y /= InScale;
+        return *this;
+    }
 
-FORCEINLINE constexpr Vector2& Vector2::operator+=(const Vector2& InVector)
-{
-	X += InVector.X;
-	Y += InVector.Y;
-	return *this;
-}
+FORCEINLINE constexpr Vector2& Vector2::operator+=(const Vector2& InVector) {
+        X += InVector.X;
+        Y += InVector.Y;
+        return *this;
+    }
 
-FORCEINLINE constexpr Vector2& Vector2::operator-=(const Vector2& InVector)
-{
-	X -= InVector.X;
-	Y -= InVector.Y;
-	return *this;
-}
+FORCEINLINE constexpr Vector2& Vector2::operator-=(const Vector2& InVector) {
+        X -= InVector.X;
+        Y -= InVector.Y;
+        return *this;
+    }
 
-FORCEINLINE constexpr bool Vector2::EqualsInTolerance(const Vector2& InVector, float InTolerance) const
-{
-	return (Math::Abs(this->X - InVector.X) <= InTolerance) &&
-		(Math::Abs(this->Y - InVector.Y) < InTolerance);
-}
+FORCEINLINE constexpr bool Vector2::EqualsInTolerance(const Vector2& InVector, float InTolerance) const {
+        return (Math::Abs(this->X - InVector.X) <= InTolerance) &&
+            (Math::Abs(this->Y - InVector.Y) < InTolerance);
+    }
 
-FORCEINLINE constexpr float Vector2::Max() const
-{
-	return Math::Max(X, Y);
-}
+FORCEINLINE constexpr float Vector2::Max() const {
+        return Math::Max(X, Y);
+    }
 
-FORCEINLINE constexpr float Vector2::Dot(const Vector2& InVector) const
-{
-	return X * InVector.X + Y * InVector.Y;
-}
+FORCEINLINE constexpr float Vector2::Dot(const Vector2& InVector) const {
+        return X * InVector.X + Y * InVector.Y;
+    }
 
-FORCEINLINE float Vector2::Angle() const
-{
-	return atan2f(Y,X);
-}
+FORCEINLINE float Vector2::Angle() const {
+        return atan2f(Y, X);
+    }
 
-FORCEINLINE float Vector2::AngleInDegree() const
-{
-	return Math::Rad2Deg(atan2f(Y, X));
-}
+FORCEINLINE float Vector2::AngleInDegree() const {
+        return Math::Rad2Deg(atan2f(Y, X));
+    }
 
-FORCEINLINE Vector2 Vector2::ToPolarCoordinate() const
-{
-	return Vector2(Size(), Angle());
-}
+FORCEINLINE Vector2 Vector2::ToPolarCoordinate() const {
+        return Vector2(Size(), Angle());
+    }
 
-FORCEINLINE constexpr Vector2 Vector2::ToCartesianCoordinate() const
-{
-	float sin = 0.f, cos = 0.f;
-	Math::GetSinCosRad(sin, cos, Y);
-	return Vector2(X * cos, X * sin);
-}
-
+FORCEINLINE constexpr Vector2 Vector2::ToCartesianCoordinate() const {
+        float sin = 0.f, cos = 0.f;
+        Math::GetSinCosRad(sin, cos, Y);
+        return Vector2(X * cos, X * sin);
+    }
 }

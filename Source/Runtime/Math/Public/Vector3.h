@@ -1,17 +1,19 @@
 #pragma once
 
-namespace CK
-{
+namespace CK {
+    struct Vector3 {
+    public:
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 
+        FORCEINLINE constexpr Vector3() = default;
 
-struct Vector3
-{
-public:
-	// »ý¼ºÀÚ 
-	FORCEINLINE constexpr Vector3() = default;
-	FORCEINLINE explicit constexpr Vector3(const Vector2& InV, bool IsPoint = true) : X(InV.X), Y(InV.Y) { Z = IsPoint ? 1.f : 0.f; }
-	FORCEINLINE explicit constexpr Vector3(float InX, float InY, float InZ) : X(InX), Y(InY), Z(InZ) { }
+        FORCEINLINE explicit constexpr Vector3(const Vector2& InV, bool IsPoint = true) : X(InV.X), Y(InV.Y) {
+            Z = IsPoint ? 1.f : 0.f;
+        }
 
-	// ¿¬»êÀÚ 
+        FORCEINLINE explicit constexpr Vector3(float InX, float InY, float InZ) : X(InX), Y(InY), Z(InZ) {
+        }
+
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 
 	FORCEINLINE constexpr float operator[](BYTE InIndex) const;
 	FORCEINLINE constexpr float& operator[](BYTE InIndex);
 	FORCEINLINE constexpr Vector3 operator-() const;
@@ -25,7 +27,7 @@ public:
 	FORCEINLINE constexpr Vector3& operator+=(const Vector3& InVector);
 	FORCEINLINE constexpr Vector3& operator-=(const Vector3& InVector);
 
-	// ¸â¹öÇÔ¼ö 
+        // ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ 
 	FORCEINLINE constexpr Vector2 ToVector2() const;
 	FORCEINLINE float Size() const;
 	FORCEINLINE constexpr float SizeSquared() const;
@@ -35,158 +37,133 @@ public:
 	FORCEINLINE constexpr float Dot(const Vector3& InVector) const;
 	FORCEINLINE constexpr Vector3 Cross(const Vector3& InVector) const;
 
-	std::string ToString() const;
+        std::string ToString() const;
 
 
-	// Á¤Àû¸â¹öº¯¼ö 
-	static const Vector3 UnitX;
-	static const Vector3 UnitY;
-	static const Vector3 UnitZ;
-	static const Vector3 One;
-	static const Vector3 Zero;
-	static constexpr BYTE Dimension = 3;
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 
+        static const Vector3 UnitX;
+        static const Vector3 UnitY;
+        static const Vector3 UnitZ;
+        static const Vector3 One;
+        static const Vector3 Zero;
+        static constexpr BYTE Dimension = 3;
 
-	// ¸â¹öº¯¼ö
-	union
-	{
-		struct
-		{
-			float X, Y, Z;
-		};
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        union {
+            struct {
+                float X, Y, Z;
+            };
 
-		std::array<float, Dimension> Scalars = { 0.f, 0.f, 0.f };
-	};
-};
+            std::array<float, Dimension> Scalars = {0.f, 0.f, 0.f};
+        };
+    };
 
-FORCEINLINE constexpr Vector2 Vector3::ToVector2() const
-{
-	return Vector2(X, Y);
-}
+FORCEINLINE constexpr Vector2 Vector3::ToVector2() const {
+        return Vector2(X, Y);
+    }
 
-FORCEINLINE float Vector3::Size() const
-{
-	return sqrtf(SizeSquared());
-}
+FORCEINLINE float Vector3::Size() const {
+        return sqrtf(SizeSquared());
+    }
 
-FORCEINLINE constexpr float Vector3::SizeSquared() const
-{
-	return X * X + Y * Y + Z * Z;
-}
+FORCEINLINE constexpr float Vector3::SizeSquared() const {
+        return X * X + Y * Y + Z * Z;
+    }
 
-FORCEINLINE Vector3 Vector3::Normalize() const
-{
-	float squareSum = SizeSquared();
-	if (squareSum == 1.f)
-	{
-		return *this;
-	}
-	else if(squareSum == 0.f)
-	{
-		return Vector3::Zero;
-	}
+FORCEINLINE Vector3 Vector3::Normalize() const {
+        float squareSum = SizeSquared();
+        if (squareSum == 1.f) {
+            return *this;
+        }
+        else if (squareSum == 0.f) {
+            return Vector3::Zero;
+        }
 
-	float invLength = Math::InvSqrt(squareSum);
-	return Vector3(X * invLength, Y * invLength, Z * invLength);
-}
+        float invLength = Math::InvSqrt(squareSum);
+        return Vector3(X * invLength, Y * invLength, Z * invLength);
+    }
 
-FORCEINLINE constexpr float Vector3::operator[](BYTE InIndex) const
-{
-	assert(InIndex < Dimension);
-	return Scalars[InIndex];
-}
+FORCEINLINE constexpr float Vector3::operator[](BYTE InIndex) const {
+        assert(InIndex < Dimension);
+        return Scalars[InIndex];
+    }
 
-FORCEINLINE constexpr float &Vector3::operator[](BYTE InIndex)
-{
-	assert(InIndex < Dimension);
-	return Scalars[InIndex];
-}
+FORCEINLINE constexpr float& Vector3::operator[](BYTE InIndex) {
+        assert(InIndex < Dimension);
+        return Scalars[InIndex];
+    }
 
-FORCEINLINE constexpr Vector3 Vector3::operator-() const
-{
-	return Vector3(-X, -Y, -Z);
-}
+FORCEINLINE constexpr Vector3 Vector3::operator-() const {
+        return Vector3(-X, -Y, -Z);
+    }
 
-FORCEINLINE constexpr Vector3 Vector3::operator*(float InScale) const
-{
-	return Vector3(X * InScale, Y * InScale, Z * InScale);
-}
+FORCEINLINE constexpr Vector3 Vector3::operator*(float InScale) const {
+        return Vector3(X * InScale, Y * InScale, Z * InScale);
+    }
 
-FORCEINLINE constexpr Vector3 Vector3::operator/(float InScale) const
-{
-	return Vector3(X / InScale, Y / InScale, Z / InScale);
-}
+FORCEINLINE constexpr Vector3 Vector3::operator/(float InScale) const {
+        return Vector3(X / InScale, Y / InScale, Z / InScale);
+    }
 
-FORCEINLINE constexpr Vector3 Vector3::operator*(const Vector3& InVector) const
-{
-	return Vector3(X * InVector.X, Y * InVector.Y, Z * InVector.Z);
-}
+FORCEINLINE constexpr Vector3 Vector3::operator*(const Vector3& InVector) const {
+        return Vector3(X * InVector.X, Y * InVector.Y, Z * InVector.Z);
+    }
 
-FORCEINLINE constexpr Vector3 Vector3::operator+(const Vector3& InVector) const
-{
-	return Vector3(X + InVector.X, Y + InVector.Y, Z + InVector.Z);
-}
+FORCEINLINE constexpr Vector3 Vector3::operator+(const Vector3& InVector) const {
+        return Vector3(X + InVector.X, Y + InVector.Y, Z + InVector.Z);
+    }
 
-FORCEINLINE constexpr Vector3 Vector3::operator-(const Vector3& InVector) const
-{
-	return Vector3(X - InVector.X, Y - InVector.Y, Z - InVector.Z);
-}
+FORCEINLINE constexpr Vector3 Vector3::operator-(const Vector3& InVector) const {
+        return Vector3(X - InVector.X, Y - InVector.Y, Z - InVector.Z);
+    }
 
-FORCEINLINE constexpr Vector3& Vector3::operator*=(float InScale)
-{
-	X *= InScale;
-	Y *= InScale;
-	Z *= InScale;
-	return *this;
-}
+FORCEINLINE constexpr Vector3& Vector3::operator*=(float InScale) {
+        X *= InScale;
+        Y *= InScale;
+        Z *= InScale;
+        return *this;
+    }
 
-FORCEINLINE constexpr Vector3& Vector3::operator/=(float InScale)
-{
-	X /= InScale;
-	Y /= InScale;
-	Z /= InScale;
-	return *this;
-}
+FORCEINLINE constexpr Vector3& Vector3::operator/=(float InScale) {
+        X /= InScale;
+        Y /= InScale;
+        Z /= InScale;
+        return *this;
+    }
 
-FORCEINLINE constexpr Vector3& Vector3::operator+=(const Vector3& InVector)
-{
-	X += InVector.X;
-	Y += InVector.Y;
-	Z += InVector.Z;
-	return *this;
-}
+FORCEINLINE constexpr Vector3& Vector3::operator+=(const Vector3& InVector) {
+        X += InVector.X;
+        Y += InVector.Y;
+        Z += InVector.Z;
+        return *this;
+    }
 
-FORCEINLINE constexpr Vector3& Vector3::operator-=(const Vector3& InVector)
-{
-	X -= InVector.X;
-	Y -= InVector.Y;
-	Z -= InVector.Z;
-	return *this;
-}
+FORCEINLINE constexpr Vector3& Vector3::operator-=(const Vector3& InVector) {
+        X -= InVector.X;
+        Y -= InVector.Y;
+        Z -= InVector.Z;
+        return *this;
+    }
 
-FORCEINLINE constexpr bool Vector3::EqualsInTolerance(const Vector3& InVector, float InTolerance) const
-{
-	return (Math::Abs(this->X - InVector.X) <= InTolerance) &&
-		(Math::Abs(this->Y - InVector.Y) < InTolerance) &&
-		(Math::Abs(this->Z - InVector.Z) < InTolerance);
-}
+FORCEINLINE constexpr bool Vector3::EqualsInTolerance(const Vector3& InVector, float InTolerance) const {
+        return (Math::Abs(this->X - InVector.X) <= InTolerance) &&
+            (Math::Abs(this->Y - InVector.Y) < InTolerance) &&
+            (Math::Abs(this->Z - InVector.Z) < InTolerance);
+    }
 
-FORCEINLINE constexpr float Vector3::Max() const
-{
-	float max = Math::Max(X, Y);
-	return Math::Max(max, Z);
-}
+FORCEINLINE constexpr float Vector3::Max() const {
+        float max = Math::Max(X, Y);
+        return Math::Max(max, Z);
+    }
 
-FORCEINLINE constexpr float Vector3::Dot(const Vector3& InVector) const
-{
-	return X * InVector.X + Y * InVector.Y + Z * InVector.Z;
-}
+FORCEINLINE constexpr float Vector3::Dot(const Vector3& InVector) const {
+        return X * InVector.X + Y * InVector.Y + Z * InVector.Z;
+    }
 
-FORCEINLINE constexpr Vector3 Vector3::Cross(const Vector3& InVector) const
-{
-	return Vector3(
-		Y * InVector.Z - Z * InVector.Y,
-		Z * InVector.X - X * InVector.Z,
-		X * InVector.Y - Y * InVector.X);
-}
-
+FORCEINLINE constexpr Vector3 Vector3::Cross(const Vector3& InVector) const {
+        return Vector3(
+            Y * InVector.Z - Z * InVector.Y,
+            Z * InVector.X - X * InVector.Z,
+            X * InVector.Y - Y * InVector.X);
+    }
 }

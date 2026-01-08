@@ -1,49 +1,44 @@
 #pragma once
 
-namespace CK
-{
-namespace DDD
-{
+namespace CK {
+    namespace DDD {
+        class Bone {
+        public:
+            Bone() = default;
 
-class Bone
-{
-public:
-	Bone() = default;
-	Bone(const std::string& InName, const Transform& InTransform) : _Name(InName), _ParentName(InName)
-	{
-		_Hash = std::hash<std::string>()(_Name);
-		_BindPose = InTransform;
-		_Transform.SetLocalTransform(InTransform);
-	}
+            Bone(const std::string& InName, const Transform& InTransform) : _Name(InName), _ParentName(InName) {
+                _Hash = std::hash<std::string>()(_Name);
+                _BindPose = InTransform;
+                _Transform.SetLocalTransform(InTransform);
+            }
 
-public:
-	// Æ®·£½ºÆû
-	TransformComponent& GetTransform() { return _Transform; }
-	const TransformComponent& GetTransform() const { return _Transform; }
-	const Transform& GetBindPose() const { return _BindPose; }
-	void SetParent(Bone& InBone) 
-	{
-		_ParentName = InBone.GetName();
-		_Transform.SetParent(InBone.GetTransform());
-	}
+        public:
+            // Æ®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            TransformComponent& GetTransform() { return _Transform; }
+            const TransformComponent& GetTransform() const { return _Transform; }
+            const Transform& GetBindPose() const { return _BindPose; }
 
-	// Å° °ü·Ã
-	const std::string& GetName() const { return _Name; }
-	std::size_t GetHash() const { return _Hash; }
-	bool HasParent() const { return _Name.compare(_ParentName) != 0; }
-	const std::string& GetParentName() const { return _ParentName; }
+            void SetParent(Bone& InBone) {
+                _ParentName = InBone.GetName();
+                _Transform.SetParent(InBone.GetTransform());
+            }
 
-private:
-	std::size_t _Hash = 0;
-	std::string _Name;
-	TransformComponent _Transform;
+            // Å° ï¿½ï¿½ï¿½ï¿½
+            const std::string& GetName() const { return _Name; }
+            std::size_t GetHash() const { return _Hash; }
+            bool HasParent() const { return _Name.compare(_ParentName) != 0; }
+            const std::string& GetParentName() const { return _ParentName; }
 
-	// ·ÎÄÃ °ø°£ÀÇ ÁÂÇ¥·Î ±â·Ï
-	Transform _BindPose;
+        private:
+            std::size_t _Hash = 0;
+            std::string _Name;
+            TransformComponent _Transform;
 
-	// ºÎ¸ð Á¤º¸
-	std::string _ParentName;
-};
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ç¥ï¿½ï¿½ ï¿½ï¿½ï¿½
+            Transform _BindPose;
 
-}
+            // ï¿½Î¸ï¿½ ï¿½ï¿½ï¿½ï¿½
+            std::string _ParentName;
+        };
+    }
 }

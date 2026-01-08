@@ -1,166 +1,144 @@
-
 #include "Precompiled.h"
 #include <random>
 using namespace CK::DD;
 
-// ¸Þ½Ã
+// ï¿½Þ½ï¿½
 const std::size_t GameEngine::QuadMesh = std::hash<std::string>()("SM_Quad");
 
-// °ÔÀÓ ¿ÀºêÁ§Æ®
+// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
 const std::string GameEngine::PlayerGo("Player");
 
-// ÅØ½ºÃÄ
+// ï¿½Ø½ï¿½ï¿½ï¿½
 const std::size_t GameEngine::DiffuseTexture = std::hash<std::string>()("Diffuse");
 const std::string GameEngine::SteveTexturePath("Steve.png");
 
-struct GameObjectCompare
-{
-	bool operator()(const std::unique_ptr<GameObject>& lhs, std::size_t rhs)
-	{
-		return lhs->GetHash() < rhs;
-	}
+struct GameObjectCompare {
+    bool operator()(const std::unique_ptr<GameObject>& lhs, std::size_t rhs) {
+        return lhs->GetHash() < rhs;
+    }
 };
 
-void GameEngine::OnScreenResize(const ScreenPoint& InScreenSize)
-{
-	// È­¸é Å©±âÀÇ ¼³Á¤
-	_ScreenSize = InScreenSize;
-	_MainCamera.SetViewportSize(_ScreenSize);
+void GameEngine::OnScreenResize(const ScreenPoint& InScreenSize) {
+    // È­ï¿½ï¿½ Å©ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    _ScreenSize = InScreenSize;
+    _MainCamera.SetViewportSize(_ScreenSize);
 }
 
-bool GameEngine::Init()
-{
-	// ÀÌ¹Ì ÃÊ±âÈ­µÇ¾î ÀÖÀ¸¸é ÃÊ±âÈ­ ÁøÇàÇÏÁö ¾ÊÀ½.
-	if (_IsInitialized)
-	{
-		return true;
-	}
+bool GameEngine::Init() {
+    // ï¿½Ì¹ï¿½ ï¿½Ê±ï¿½È­ï¿½Ç¾ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
+    if (_IsInitialized) {
+        return true;
+    }
 
-	// È­¸é Å©±â°¡ ¿Ã¹Ù·Î ¼³Á¤µÇ¾î ÀÖ´ÂÁö È®ÀÎ
-	if (_ScreenSize.HasZero())
-	{
-		return false;
-	}
+    // È­ï¿½ï¿½ Å©ï¿½â°¡ ï¿½Ã¹Ù·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç¾ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ È®ï¿½ï¿½
+    if (_ScreenSize.HasZero()) {
+        return false;
+    }
 
-	if (!_InputManager.IsInputReady())
-	{
-		return false;
-	}
+    if (!_InputManager.IsInputReady()) {
+        return false;
+    }
 
-	if (!LoadResources())
-	{
-		return false;
-	}
+    if (!LoadResources()) {
+        return false;
+    }
 
-	if (!LoadScene())
-	{
-		return false;
-	}
+    if (!LoadScene()) {
+        return false;
+    }
 
-	_IsInitialized = true;
-	return true;
+    _IsInitialized = true;
+    return true;
 }
 
-bool GameEngine::LoadResources()
-{
-	// ¸Þ½Ã µ¥ÀÌÅÍ ·Îµù
-	Mesh& quadMesh = CreateMesh(GameEngine::QuadMesh);
+bool GameEngine::LoadResources() {
+    // ï¿½Þ½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½
+    Mesh& quadMesh = CreateMesh(GameEngine::QuadMesh);
 
-	constexpr float squareHalfSize = 0.5f;
-	constexpr int vertexCount = 4;
-	constexpr int triangleCount = 2;
-	constexpr int indexCount = triangleCount * 3;
+    constexpr float squareHalfSize = 0.5f;
+    constexpr int vertexCount = 4;
+    constexpr int triangleCount = 2;
+    constexpr int indexCount = triangleCount * 3;
 
-	auto& v = quadMesh.GetVertices();
-	auto& i = quadMesh.GetIndices();
-	auto& uv = quadMesh.GetUVs();
+    auto& v = quadMesh.GetVertices();
+    auto& i = quadMesh.GetIndices();
+    auto& uv = quadMesh.GetUVs();
 
-	v = {
-		Vector2(-squareHalfSize, -squareHalfSize),
-		Vector2(-squareHalfSize, squareHalfSize),
-		Vector2(squareHalfSize, squareHalfSize),
-		Vector2(squareHalfSize, -squareHalfSize)
-	};
+    v = {
+        Vector2(-squareHalfSize, -squareHalfSize),
+        Vector2(-squareHalfSize, squareHalfSize),
+        Vector2(squareHalfSize, squareHalfSize),
+        Vector2(squareHalfSize, -squareHalfSize)
+    };
 
-	uv = {
-		Vector2(0.125f, 0.75f),
-		Vector2(0.125f, 0.875f),
-		Vector2(0.25f, 0.875f),
-		Vector2(0.25f, 0.75f)
-	};
+    uv = {
+        Vector2(0.125f, 0.75f),
+        Vector2(0.125f, 0.875f),
+        Vector2(0.25f, 0.875f),
+        Vector2(0.25f, 0.75f)
+    };
 
-	i = {
-		0, 2, 1, 0, 3, 2
-	};
+    i = {
+        0, 2, 1, 0, 3, 2
+    };
 
-	quadMesh.CalculateBounds();
+    quadMesh.CalculateBounds();
 
-	// ÅØ½ºÃÄ ·Îµù
-	Texture& diffuseTexture = CreateTexture(GameEngine::DiffuseTexture, GameEngine::SteveTexturePath);
-	if (!diffuseTexture.IsIntialized())
-	{
-		return false;
-	}
+    // ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½Îµï¿½
+    Texture& diffuseTexture = CreateTexture(GameEngine::DiffuseTexture, GameEngine::SteveTexturePath);
+    if (!diffuseTexture.IsIntialized()) {
+        return false;
+    }
 
-	return true;
+    return true;
 }
 
-bool GameEngine::LoadScene()
-{
-	return true;
+bool GameEngine::LoadScene() {
+    return true;
 }
 
 
-Mesh& GameEngine::CreateMesh(const std::size_t& InKey)
-{
-	auto meshPtr = std::make_unique<Mesh>();
-	_Meshes.insert({ InKey, std::move(meshPtr) });
-	return *_Meshes.at(InKey).get();
+Mesh& GameEngine::CreateMesh(const std::size_t& InKey) {
+    auto meshPtr = std::make_unique<Mesh>();
+    _Meshes.insert({InKey, std::move(meshPtr)});
+    return *_Meshes.at(InKey).get();
 }
 
-Texture& GameEngine::CreateTexture(const std::size_t& InKey, const std::string& InTexturePath)
-{
-	auto texturePtr = std::make_unique<Texture>(InTexturePath);
-	_Textures.insert({ InKey, std::move(texturePtr) });
-	return *_Textures.at(InKey).get();
+Texture& GameEngine::CreateTexture(const std::size_t& InKey, const std::string& InTexturePath) {
+    auto texturePtr = std::make_unique<Texture>(InTexturePath);
+    _Textures.insert({InKey, std::move(texturePtr)});
+    return *_Textures.at(InKey).get();
 }
 
-GameObject& GameEngine::CreateNewGameObject(const std::string& InName)
-{
-	std::size_t inHash = std::hash<std::string>()(InName);
-	const auto it = std::lower_bound(SceneBegin(), SceneEnd(), inHash, GameObjectCompare());
+GameObject& GameEngine::CreateNewGameObject(const std::string& InName) {
+    std::size_t inHash = std::hash<std::string>()(InName);
+    const auto it = std::lower_bound(SceneBegin(), SceneEnd(), inHash, GameObjectCompare());
 
-	auto newGameObject = std::make_unique<GameObject>(InName);
-	if (it != _Scene.end())
-	{
-		std::size_t targetHash = (*it)->GetHash();
-		if (targetHash == inHash)
-		{
-			// Áßº¹µÈ Å° ¹ß»ý. ¹«½Ã.
-			assert(false);
-			return GameObject::Invalid;
-		}
-		else if (targetHash < inHash)
-		{
-			_Scene.insert(it + 1, std::move(newGameObject));
-		}
-		else
-		{
-			_Scene.insert(it, std::move(newGameObject));
-		}
-	}
-	else
-	{
-		_Scene.push_back(std::move(newGameObject));
-	}
+    auto newGameObject = std::make_unique<GameObject>(InName);
+    if (it != _Scene.end()) {
+        std::size_t targetHash = (*it)->GetHash();
+        if (targetHash == inHash) {
+            // ï¿½ßºï¿½ï¿½ï¿½ Å° ï¿½ß»ï¿½. ï¿½ï¿½ï¿½ï¿½.
+            assert(false);
+            return GameObject::Invalid;
+        }
+        else if (targetHash < inHash) {
+            _Scene.insert(it + 1, std::move(newGameObject));
+        }
+        else {
+            _Scene.insert(it, std::move(newGameObject));
+        }
+    }
+    else {
+        _Scene.push_back(std::move(newGameObject));
+    }
 
-	return GetGameObject(InName);
+    return GetGameObject(InName);
 }
 
-GameObject& GameEngine::GetGameObject(const std::string& InName)
-{
-	std::size_t targetHash = std::hash<std::string>()(InName);
-	const auto it = std::lower_bound(SceneBegin(), SceneEnd(), targetHash, GameObjectCompare());
+GameObject& GameEngine::GetGameObject(const std::string& InName) {
+    std::size_t targetHash = std::hash<std::string>()(InName);
+    const auto it = std::lower_bound(SceneBegin(), SceneEnd(), targetHash, GameObjectCompare());
 
-	return (it != _Scene.end()) ? *(*it).get() : GameObject::Invalid;
+    return (it != _Scene.end()) ? *(*it).get() : GameObject::Invalid;
 }

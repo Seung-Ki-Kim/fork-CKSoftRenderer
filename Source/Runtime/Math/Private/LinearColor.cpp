@@ -1,4 +1,3 @@
-
 #include "Precompiled.h"
 using namespace CK;
 
@@ -16,5 +15,3 @@ const LinearColor LinearColor::Blue(0.f, 0.f, 1.f, 1.f);
 const LinearColor LinearColor::Yellow(1.f, 1.f, 0.f, 1.f);
 const LinearColor LinearColor::Cyan(0.f, 1.f, 1.f, 1.f);
 const LinearColor LinearColor::Magenta(1.f, 0.f, 1.f, 1.f);
-
-

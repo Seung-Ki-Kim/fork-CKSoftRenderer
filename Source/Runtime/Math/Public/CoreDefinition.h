@@ -1,14 +1,13 @@
 #pragma once
 
-typedef unsigned char		BYTE;		// ºÎÈ£ ¾ø´Â 8ºñÆ®
-typedef unsigned int		UINT32;		// ºÎÈ£ ¾ø´Â 32ºñÆ®
-typedef signed long long	INT64;	// ºÎÈ£ ÀÖ´Â 64ºñÆ®.
+typedef unsigned char BYTE; // ï¿½ï¿½È£ ï¿½ï¿½ï¿½ï¿½ 8ï¿½ï¿½Æ®
+typedef unsigned int UINT32; // ï¿½ï¿½È£ ï¿½ï¿½ï¿½ï¿½ 32ï¿½ï¿½Æ®
+typedef signed long long INT64; // ï¿½ï¿½È£ ï¿½Ö´ï¿½ 64ï¿½ï¿½Æ®.
 
 #define SMALL_NUMBER		(1.e-8f)
 
-enum class BoundCheckResult : UINT32
-{
-	Outside = 0,
-	Intersect,
-	Inside
+enum class BoundCheckResult : UINT32 {
+    Outside = 0,
+    Intersect,
+    Inside
 };

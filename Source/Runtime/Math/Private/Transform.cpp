@@ -1,28 +1,25 @@
-
 #include "Precompiled.h"
 using namespace CK;
 
-Transform::Transform(const Matrix4x4& InMatrix)
-{
-	// ½ºÄÉÀÏ È¸Àü Çà·Ä¸¸ ºÐ¸®
-	Matrix3x3 rotScaleMatrix = InMatrix.ToMatrix3x3();
-	Position = InMatrix[3].ToVector3();
+Transform::Transform(const Matrix4x4& InMatrix) {
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È¸ï¿½ï¿½ ï¿½ï¿½Ä¸ï¿½ ï¿½Ð¸ï¿½
+    Matrix3x3 rotScaleMatrix = InMatrix.ToMatrix3x3();
+    Position = InMatrix[3].ToVector3();
 
-	// Å©±â Çà·ÄºÎÅÍ ±¸ÇÑ´Ù. 
-	Scale = Vector3::Zero;
-	const float squareSumX = rotScaleMatrix[0].SizeSquared();
-	const float squareSumY = rotScaleMatrix[1].SizeSquared();
-	const float squareSumZ = rotScaleMatrix[2].SizeSquared();
-	if (squareSumX > SMALL_NUMBER) { Scale.X = sqrtf(squareSumX); }
-	if (squareSumY > SMALL_NUMBER) { Scale.Y = sqrtf(squareSumY); }
-	if (squareSumZ > SMALL_NUMBER) { Scale.Z = sqrtf(squareSumZ); }
+    // Å©ï¿½ï¿½ ï¿½ï¿½Äºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ñ´ï¿½. 
+    Scale = Vector3::Zero;
+    const float squareSumX = rotScaleMatrix[0].SizeSquared();
+    const float squareSumY = rotScaleMatrix[1].SizeSquared();
+    const float squareSumZ = rotScaleMatrix[2].SizeSquared();
+    if (squareSumX > SMALL_NUMBER) { Scale.X = sqrtf(squareSumX); }
+    if (squareSumY > SMALL_NUMBER) { Scale.Y = sqrtf(squareSumY); }
+    if (squareSumZ > SMALL_NUMBER) { Scale.Z = sqrtf(squareSumZ); }
 
-	// Å©±â ¿ä¼Ò¸¦ ³ª´² Á÷±³ Á¤¹æ Çà·ÄÀ» ±¸ÇÑ´Ù.
-	rotScaleMatrix[0] /= squareSumX;
-	rotScaleMatrix[1] /= squareSumY;
-	rotScaleMatrix[2] /= squareSumZ;
+    // Å©ï¿½ï¿½ ï¿½ï¿½Ò¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ñ´ï¿½.
+    rotScaleMatrix[0] /= squareSumX;
+    rotScaleMatrix[1] /= squareSumY;
+    rotScaleMatrix[2] /= squareSumZ;
 
-	// »ç¿ø¼ö·Î º¯È¯ÇÑ´Ù.
-	Rotation = Quaternion(rotScaleMatrix);
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ï¿½Ñ´ï¿½.
+    Rotation = Quaternion(rotScaleMatrix);
 }
-

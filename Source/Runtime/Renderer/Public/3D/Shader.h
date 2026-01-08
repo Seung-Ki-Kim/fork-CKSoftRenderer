@@ -1,27 +1,18 @@
-
 #pragma once
 
-namespace CK
-{
-namespace DDD
-{
+namespace CK {
+    namespace DDD {
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ ï¿½Úµï¿½
+FORCEINLINE void VertexShader3D(std::vector<Vertex3D>& InVertices, const Matrix4x4& InMatrix) {
+            // ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
+            for (Vertex3D& v : InVertices) {
+                v.Position = InMatrix * v.Position;
+            }
+        }
 
-// Á¤Á¡ º¯È¯ ÄÚµå
-FORCEINLINE void VertexShader3D(std::vector<Vertex3D>& InVertices, const Matrix4x4& InMatrix)
-{
-	// À§Ä¡ °ª¿¡ ÃÖÁ¾ Çà·ÄÀ» Àû¿ëÇØ º¯È¯
-	for (Vertex3D& v : InVertices)
-	{
-		v.Position = InMatrix * v.Position;
-	}
-}
-
-// ÇÈ¼¿ º¯È¯ ÄÚµå
-FORCEINLINE LinearColor FragmentShader3D(LinearColor& InColor, const LinearColor& InColorParam)
-{
-	return InColor * InColorParam;
-}
-
-
-}
+        // ï¿½È¼ï¿½ ï¿½ï¿½È¯ ï¿½Úµï¿½
+FORCEINLINE LinearColor FragmentShader3D(LinearColor& InColor, const LinearColor& InColorParam) {
+            return InColor * InColorParam;
+        }
+    }
 }

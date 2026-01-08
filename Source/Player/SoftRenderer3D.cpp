@@ -1,447 +1,415 @@
-
 #include "Precompiled.h"
 #include "SoftRenderer.h"
 #include <random>
 using namespace CK::DDD;
 
-// ±×¸®µå ±×¸®±â
-void SoftRenderer::DrawGizmo3D()
-{
-	auto& r = GetRenderer();
-	const GameEngine& g = Get3DGameEngine();
+// ï¿½×¸ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½
+void SoftRenderer::DrawGizmo3D() {
+    auto& r = GetRenderer();
+    const GameEngine& g = Get3DGameEngine();
 
-	// ºä ±âÁî¸ð ±×¸®±â
-	std::vector<Vertex3D> viewGizmo = { 
-		Vertex3D(Vector4(Vector3::Zero)),
-		Vertex3D(Vector4(Vector3::UnitX * _GizmoUnitLength)),
-		Vertex3D(Vector4(Vector3::UnitY * _GizmoUnitLength)),
-		Vertex3D(Vector4(Vector3::UnitZ * _GizmoUnitLength)),
-	};
+    // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½
+    std::vector<Vertex3D> viewGizmo = {
+        Vertex3D(Vector4(Vector3::Zero)),
+        Vertex3D(Vector4(Vector3::UnitX * _GizmoUnitLength)),
+        Vertex3D(Vector4(Vector3::UnitY * _GizmoUnitLength)),
+        Vertex3D(Vector4(Vector3::UnitZ * _GizmoUnitLength)),
+    };
 
-	Matrix4x4 viewMatRotationOnly = g.GetMainCamera().GetViewMatrixRotationOnly();
-	Matrix4x4 pvMatrix = g.GetMainCamera().GetPerspectiveViewMatrix();
-	VertexShader3D(viewGizmo, viewMatRotationOnly);
+    Matrix4x4 viewMatRotationOnly = g.GetMainCamera().GetViewMatrixRotationOnly();
+    Matrix4x4 pvMatrix = g.GetMainCamera().GetPerspectiveViewMatrix();
+    VertexShader3D(viewGizmo, viewMatRotationOnly);
 
-	// Ãà ±×¸®±â
-	Vector2 v0 = viewGizmo[0].Position.ToVector2() + _GizmoPositionOffset;
-	Vector2 v1 = viewGizmo[1].Position.ToVector2() + _GizmoPositionOffset;
-	Vector2 v2 = viewGizmo[2].Position.ToVector2() + _GizmoPositionOffset;
-	Vector2 v3 = viewGizmo[3].Position.ToVector2() + _GizmoPositionOffset;
-	r.DrawLine(v0, v1, LinearColor::Red);
-	r.DrawLine(v0, v2, LinearColor::Green);
-	r.DrawLine(v0, v3, LinearColor::Blue);
+    // ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½
+    Vector2 v0 = viewGizmo[0].Position.ToVector2() + _GizmoPositionOffset;
+    Vector2 v1 = viewGizmo[1].Position.ToVector2() + _GizmoPositionOffset;
+    Vector2 v2 = viewGizmo[2].Position.ToVector2() + _GizmoPositionOffset;
+    Vector2 v3 = viewGizmo[3].Position.ToVector2() + _GizmoPositionOffset;
+    r.DrawLine(v0, v1, LinearColor::Red);
+    r.DrawLine(v0, v2, LinearColor::Green);
+    r.DrawLine(v0, v3, LinearColor::Blue);
 
-	// ¹Ù´Ú ±âÁî¸ð
-	DrawMode prevShowMode = GetDrawMode();
-	SetDrawMode(DrawMode::Wireframe);
-	{
-		static float planeScale = 100.f;
-		const Mesh& planeMesh = g.GetMesh(GameEngine::PlaneMesh);
-		Transform pt(Vector3::Zero, Quaternion::Identity, Vector3::One * planeScale);
-		DrawMesh3D(planeMesh, pvMatrix * pt.GetMatrix(), _WireframeColor);
-	}
-	SetDrawMode(prevShowMode);
+    // ï¿½Ù´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
+    DrawMode prevShowMode = GetDrawMode();
+    SetDrawMode(DrawMode::Wireframe);
+    {
+        static float planeScale = 100.f;
+        const Mesh& planeMesh = g.GetMesh(GameEngine::PlaneMesh);
+        Transform pt(Vector3::Zero, Quaternion::Identity, Vector3::One * planeScale);
+        DrawMesh3D(planeMesh, pvMatrix * pt.GetMatrix(), _WireframeColor);
+    }
+    SetDrawMode(prevShowMode);
 }
 
-// °ÔÀÓ ·ÎÁ÷
-void SoftRenderer::Update3D(float InDeltaSeconds)
-{
-	// ±âº» ·¹ÆÛ·±½º
-	GameEngine& g = Get3DGameEngine();
-	const InputManager& input = g.GetInputManager();
-	CameraObject& camera = g.GetMainCamera();
+// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+void SoftRenderer::Update3D(float InDeltaSeconds) {
+    // ï¿½âº» ï¿½ï¿½ï¿½Û·ï¿½ï¿½ï¿½
+    GameEngine& g = Get3DGameEngine();
+    const InputManager& input = g.GetInputManager();
+    CameraObject& camera = g.GetMainCamera();
 
-	// ±âº» ¼³Á¤ º¯¼ö
-	static float fovSpeed = 100.f;
-	static float rotateSpeed = 180.f;
-	static float moveSpeed = 500.f;
+    // ï¿½âº» ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    static float fovSpeed = 100.f;
+    static float rotateSpeed = 180.f;
+    static float moveSpeed = 500.f;
 
-	// °ÔÀÓ ·ÎÁ÷¿¡¼­ »ç¿ëÇÒ °ÔÀÓ ¿ÀºêÁ§Æ® ·¹ÆÛ·±½º
-	GameObject& goPlayer = g.GetGameObject(GameEngine::PlayerGo);
-	GameObject& goCameraRig = g.GetGameObject(GameEngine::CameraRigGo);
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½Û·ï¿½ï¿½ï¿½
+    GameObject& goPlayer = g.GetGameObject(GameEngine::PlayerGo);
+    GameObject& goCameraRig = g.GetGameObject(GameEngine::CameraRigGo);
 
-	goPlayer.GetTransform().AddLocalYawRotation(-input.GetAxis(InputAxis::XAxis) * rotateSpeed * InDeltaSeconds);
-	goPlayer.GetTransform().AddLocalPosition(goPlayer.GetTransform().GetLocalZ() * input.GetAxis(InputAxis::YAxis) * moveSpeed * InDeltaSeconds);
+    goPlayer.GetTransform().AddLocalYawRotation(-input.GetAxis(InputAxis::XAxis) * rotateSpeed * InDeltaSeconds);
+    goPlayer.GetTransform().AddLocalPosition(
+        goPlayer.GetTransform().GetLocalZ() * input.GetAxis(InputAxis::YAxis) * moveSpeed * InDeltaSeconds);
 
-	// Ä«¸Þ¶ó È­°¢ ¼³Á¤
-	float newFOV = Math::Clamp(camera.GetFOV() + input.GetAxis(InputAxis::ZAxis) * fovSpeed * InDeltaSeconds, 5.f, 179.f);
-	camera.SetFOV(newFOV);
+    // Ä«ï¿½Þ¶ï¿½ È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    float newFOV = Math::Clamp(camera.GetFOV() + input.GetAxis(InputAxis::ZAxis) * fovSpeed * InDeltaSeconds, 5.f,
+                               179.f);
+    camera.SetFOV(newFOV);
 }
 
-// Ä³¸¯ÅÍ ¾Ö´Ï¸ÞÀÌ¼Ç ·ÎÁ÷
-void SoftRenderer::LateUpdate3D(float InDeltaSeconds)
-{
-	// ±âº» ·¹ÆÛ·±½º
-	GameEngine& g = Get3DGameEngine();
+// Ä³ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½ï¿½
+void SoftRenderer::LateUpdate3D(float InDeltaSeconds) {
+    // ï¿½âº» ï¿½ï¿½ï¿½Û·ï¿½ï¿½ï¿½
+    GameEngine& g = Get3DGameEngine();
 
-	// ±âº» ¼³Á¤ º¯¼ö
-	static float elapsedTime = 0.f;
-	static float neckLength = 5.f;
-	static float armLegLength = 0.7f;
-	static float neckDegree = 15.f;
-	static float armLegDegree = 30.f;
-	elapsedTime += InDeltaSeconds;
+    // ï¿½âº» ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    static float elapsedTime = 0.f;
+    static float neckLength = 5.f;
+    static float armLegLength = 0.7f;
+    static float neckDegree = 15.f;
+    static float armLegDegree = 30.f;
+    elapsedTime += InDeltaSeconds;
 
-	// ¾Ö´Ï¸ÞÀÌ¼ÇÀ» À§ÇÑ Ä¿ºê »ý¼º 
-	float armLegCurrent = Math::FMod(elapsedTime, armLegLength) * Math::TwoPI / armLegLength;
-	float neckCurrent = Math::FMod(elapsedTime, neckLength) * Math::TwoPI / neckLength;
+    // ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ä¿ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ 
+    float armLegCurrent = Math::FMod(elapsedTime, armLegLength) * Math::TwoPI / armLegLength;
+    float neckCurrent = Math::FMod(elapsedTime, neckLength) * Math::TwoPI / neckLength;
 
-	float armLegCurve = sinf(armLegCurrent) * armLegDegree;
-	float neckCurve = sinf(neckCurrent) * neckDegree;
+    float armLegCurve = sinf(armLegCurrent) * armLegDegree;
+    float neckCurve = sinf(neckCurrent) * neckDegree;
 
-	// Ä³¸¯ÅÍ ·¹ÆÛ·±½º
-	GameObject& goPlayer = g.GetGameObject(GameEngine::PlayerGo);
+    // Ä³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û·ï¿½ï¿½ï¿½
+    GameObject& goPlayer = g.GetGameObject(GameEngine::PlayerGo);
 
-	// Ä³¸¯ÅÍ ¸Þ½Ã
-	Mesh& m = g.GetMesh(goPlayer.GetMeshKey());
+    // Ä³ï¿½ï¿½ï¿½ï¿½ ï¿½Þ½ï¿½
+    Mesh& m = g.GetMesh(goPlayer.GetMeshKey());
 
-	// ¸ñÀÇ È¸Àü
-	Bone& neckBone = m.GetBone(GameEngine::NeckBone);
-	neckBone.GetTransform().SetLocalRotation(Rotator(neckCurve, 0.f, 0.f));
+    // ï¿½ï¿½ï¿½ï¿½ È¸ï¿½ï¿½
+    Bone& neckBone = m.GetBone(GameEngine::NeckBone);
+    neckBone.GetTransform().SetLocalRotation(Rotator(neckCurve, 0.f, 0.f));
 
-	// ÆÈÀÇ È¸Àü
-	Bone& leftArmBone = m.GetBone(GameEngine::LeftArmBone);
-	leftArmBone.GetTransform().SetLocalRotation(Rotator(0.f, 0.f, armLegCurve));
+    // ï¿½ï¿½ï¿½ï¿½ È¸ï¿½ï¿½
+    Bone& leftArmBone = m.GetBone(GameEngine::LeftArmBone);
+    leftArmBone.GetTransform().SetLocalRotation(Rotator(0.f, 0.f, armLegCurve));
 
-	Bone& rightArmBone = m.GetBone(GameEngine::RightArmBone);
-	rightArmBone.GetTransform().SetLocalRotation(Rotator(0.f, 0.f, -armLegCurve));
+    Bone& rightArmBone = m.GetBone(GameEngine::RightArmBone);
+    rightArmBone.GetTransform().SetLocalRotation(Rotator(0.f, 0.f, -armLegCurve));
 
-	// ´Ù¸®ÀÇ È¸Àü
-	Bone& leftLegBone = m.GetBone(GameEngine::LeftLegBone);
-	leftLegBone.GetTransform().SetLocalRotation(Rotator(0.f, 0.f, -armLegCurve));
+    // ï¿½Ù¸ï¿½ï¿½ï¿½ È¸ï¿½ï¿½
+    Bone& leftLegBone = m.GetBone(GameEngine::LeftLegBone);
+    leftLegBone.GetTransform().SetLocalRotation(Rotator(0.f, 0.f, -armLegCurve));
 
-	Bone& rightLegBone = m.GetBone(GameEngine::RightLegBone);
-	rightLegBone.GetTransform().SetLocalRotation(Rotator(0.f, 0.f, armLegCurve));
+    Bone& rightLegBone = m.GetBone(GameEngine::RightLegBone);
+    rightLegBone.GetTransform().SetLocalRotation(Rotator(0.f, 0.f, armLegCurve));
 }
 
-// ·»´õ¸µ ·ÎÁ÷
-void SoftRenderer::Render3D()
-{
-	const GameEngine& g = Get3DGameEngine();
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+void SoftRenderer::Render3D() {
+    const GameEngine& g = Get3DGameEngine();
 
-	const CameraObject& mainCamera = g.GetMainCamera();
-	const Matrix4x4 pvMatrix = mainCamera.GetPerspectiveViewMatrix();
-	const ScreenPoint viewportSize = mainCamera.GetViewportSize();
-	float nearZ = mainCamera.GetNearZ();
-	float farZ = mainCamera.GetFarZ();
+    const CameraObject& mainCamera = g.GetMainCamera();
+    const Matrix4x4 pvMatrix = mainCamera.GetPerspectiveViewMatrix();
+    const ScreenPoint viewportSize = mainCamera.GetViewportSize();
+    float nearZ = mainCamera.GetNearZ();
+    float farZ = mainCamera.GetFarZ();
 
-	// ±âÁî¸ð ±×¸®±â
-	DrawGizmo3D();
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½
+    DrawGizmo3D();
 
-	for (auto it = g.SceneBegin(); it != g.SceneEnd(); ++it)
-	{
-		const GameObject& gameObject = *(*it);
-		const TransformComponent& transform = gameObject.GetTransform();
-		if (!gameObject.HasMesh() || !gameObject.IsVisible())
-		{
-			continue;
-		}
+    for (auto it = g.SceneBegin(); it != g.SceneEnd(); ++it) {
+        const GameObject& gameObject = *(*it);
+        const TransformComponent& transform = gameObject.GetTransform();
+        if (!gameObject.HasMesh() || !gameObject.IsVisible()) {
+            continue;
+        }
 
-		// ·»´õ¸µ ½ÃÀÛ
-		const Mesh& mesh = g.GetMesh(gameObject.GetMeshKey());
-		// ½ºÅ°´×ÀÌ°í WireFrameÀÎ °æ¿ì º»À» ±×¸®±â
-		if (mesh.IsSkinnedMesh() && IsWireframeDrawing())
-		{
-			const Mesh& boneMesh = g.GetMesh(GameEngine::ArrowMesh);
-			for (const auto& b : mesh.GetBones())
-			{
-				if (!b.second.HasParent())
-				{
-					continue;
-				}
-				const Bone& bone = b.second;
-				const Bone& parentBone = mesh.GetBone(bone.GetParentName());
-				const Transform& tGameObject = transform.GetWorldTransform();
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+        const Mesh& mesh = g.GetMesh(gameObject.GetMeshKey());
+        // ï¿½ï¿½Å°ï¿½ï¿½ï¿½Ì°ï¿½ WireFrameï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½
+        if (mesh.IsSkinnedMesh() && IsWireframeDrawing()) {
+            const Mesh& boneMesh = g.GetMesh(GameEngine::ArrowMesh);
+            for (const auto& b : mesh.GetBones()) {
+                if (!b.second.HasParent()) {
+                    continue;
+                }
+                const Bone& bone = b.second;
+                const Bone& parentBone = mesh.GetBone(bone.GetParentName());
+                const Transform& tGameObject = transform.GetWorldTransform();
 
-				// ¸ðµ¨¸µ °ø°£¿¡¼­ÀÇ º»ÀÇ À§Ä¡
-				const Transform& t1 = parentBone.GetTransform().GetWorldTransform();
-				const Transform& t2 = bone.GetTransform().GetWorldTransform();
+                // ï¿½ðµ¨¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡
+                const Transform& t1 = parentBone.GetTransform().GetWorldTransform();
+                const Transform& t2 = bone.GetTransform().GetWorldTransform();
 
-				// °ÔÀÓ ¿ùµå °ø°£¿¡¼­ÀÇ º»ÀÇ À§Ä¡
-				const Transform& wt1 = t1.LocalToWorld(tGameObject);
-				const Transform& wt2 = t2.LocalToWorld(tGameObject);
+                // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡
+                const Transform& wt1 = t1.LocalToWorld(tGameObject);
+                const Transform& wt2 = t2.LocalToWorld(tGameObject);
 
-				Vector3 boneVector = wt2.GetPosition() - wt1.GetPosition();
-				Transform tboneObject(wt1.GetPosition(), Quaternion(boneVector), Vector3(10.f, 10.f, boneVector.Size()));
-				Matrix4x4 boneMatrix = pvMatrix * tboneObject.GetMatrix();
-				DrawMesh3D(boneMesh, boneMatrix, LinearColor::Red);
-			}
-		}
+                Vector3 boneVector = wt2.GetPosition() - wt1.GetPosition();
+                Transform tboneObject(wt1.GetPosition(), Quaternion(boneVector),
+                                      Vector3(10.f, 10.f, boneVector.Size()));
+                Matrix4x4 boneMatrix = pvMatrix * tboneObject.GetMatrix();
+                DrawMesh3D(boneMesh, boneMatrix, LinearColor::Red);
+            }
+        }
 
-		// ÃÖÁ¾ º¯È¯ Çà·Ä
-		Matrix4x4 finalMatrix = pvMatrix * transform.GetWorldMatrix();
-		DrawMesh3D(mesh, finalMatrix, gameObject.GetColor());
-	}
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ ï¿½ï¿½ï¿½
+        Matrix4x4 finalMatrix = pvMatrix * transform.GetWorldMatrix();
+        DrawMesh3D(mesh, finalMatrix, gameObject.GetColor());
+    }
 }
 
-void SoftRenderer::DrawMesh3D(const Mesh& InMesh, const Matrix4x4& InMatrix, const LinearColor& InColor)
-{
-	size_t vertexCount = InMesh.GetVertices().size();
-	size_t indexCount = InMesh.GetIndices().size();
-	size_t triangleCount = indexCount / 3;
+void SoftRenderer::DrawMesh3D(const Mesh& InMesh, const Matrix4x4& InMatrix, const LinearColor& InColor) {
+    size_t vertexCount = InMesh.GetVertices().size();
+    size_t indexCount = InMesh.GetIndices().size();
+    size_t triangleCount = indexCount / 3;
 
-	// ·»´õ·¯°¡ »ç¿ëÇÒ Á¤Á¡ ¹öÆÛ¿Í ÀÎµ¦½º ¹öÆÛ·Î º¯È¯
-	std::vector<Vertex3D> vertices(vertexCount);
-	std::vector<size_t> indice(InMesh.GetIndices());
-	for (size_t vi = 0; vi < vertexCount; ++vi)
-	{
-		vertices[vi].Position = Vector4(InMesh.GetVertices()[vi]);
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¿ï¿½ ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û·ï¿½ ï¿½ï¿½È¯
+    std::vector<Vertex3D> vertices(vertexCount);
+    std::vector<size_t> indice(InMesh.GetIndices());
+    for (size_t vi = 0; vi < vertexCount; ++vi) {
+        vertices[vi].Position = Vector4(InMesh.GetVertices()[vi]);
 
-		//½ºÄÌ·¹Å» ¸Þ½Ã¸é ½ºÅ°´× ÀÛ¾÷ ¼öÇà
-		if (InMesh.IsSkinnedMesh())
-		{
-			Vector4 totalPosition = Vector4::Zero;
-			Weight w = InMesh.GetWeights()[vi];
-			for (size_t wi = 0; wi < InMesh.GetConnectedBones()[vi]; ++wi)
-			{
-				std::string boneName = w.Bones[wi];
-				if (InMesh.HasBone(boneName))
-				{
-					const Bone& b = InMesh.GetBone(boneName);
-					const Transform& t = b.GetTransform().GetWorldTransform();  // ¿ùµå °ø°£
-					const Transform& bindPose = b.GetBindPose(); // ¿ùµå °ø°£
+        //ï¿½ï¿½ï¿½Ì·ï¿½Å» ï¿½Þ½Ã¸ï¿½ ï¿½ï¿½Å°ï¿½ï¿½ ï¿½Û¾ï¿½ ï¿½ï¿½ï¿½ï¿½
+        if (InMesh.IsSkinnedMesh()) {
+            Vector4 totalPosition = Vector4::Zero;
+            Weight w = InMesh.GetWeights()[vi];
+            for (size_t wi = 0; wi < InMesh.GetConnectedBones()[vi]; ++wi) {
+                std::string boneName = w.Bones[wi];
+                if (InMesh.HasBone(boneName)) {
+                    const Bone& b = InMesh.GetBone(boneName);
+                    const Transform& t = b.GetTransform().GetWorldTransform(); // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+                    const Transform& bindPose = b.GetBindPose(); // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-					// BindPose °ø°£À» Áß½ÉÀ¸·Î BoneÀÇ ·ÎÄÃ °ø°£À» °è»ê
-					Transform boneLocal = t.WorldToLocal(bindPose);
+                    // BindPose ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ß½ï¿½ï¿½ï¿½ï¿½ï¿½ Boneï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+                    Transform boneLocal = t.WorldToLocal(bindPose);
 
-					// BindPose °ø°£À¸·Î Á¡À» º¯È­
-					Vector3 localPosition = bindPose.Inverse().GetPosition() + vertices[vi].Position.ToVector3();
+                    // BindPose ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È­
+                    Vector3 localPosition = bindPose.Inverse().GetPosition() + vertices[vi].Position.ToVector3();
 
-					// BindPose °ø°£¿¡¼­ÀÇ Á¡ÀÇ ÃÖÁ¾ À§Ä¡
-					Vector3 skinnedLocalPosition = boneLocal.GetMatrix() * localPosition;
+                    // BindPose ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡
+                    Vector3 skinnedLocalPosition = boneLocal.GetMatrix() * localPosition;
 
-					// ¿ùµå °ø°£À¸·Î ´Ù½Ã º¯°æ
-					Vector3 skinnedWorldPosition = bindPose.GetMatrix() * skinnedLocalPosition;
+                    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½
+                    Vector3 skinnedWorldPosition = bindPose.GetMatrix() * skinnedLocalPosition;
 
-					// °¡ÁßÄ¡¸¦ °öÇØ¼­ ´õÇØÁÜ
-					totalPosition += Vector4(skinnedWorldPosition * w.Values[wi], true);
-				}
-			}
+                    // ï¿½ï¿½ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½Ø¼ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+                    totalPosition += Vector4(skinnedWorldPosition * w.Values[wi], true);
+                }
+            }
 
-			vertices[vi].Position = totalPosition;
-		}
+            vertices[vi].Position = totalPosition;
+        }
 
-		if (InMesh.HasColor())
-		{
-			vertices[vi].Color = InMesh.GetColors()[vi];
-		}
+        if (InMesh.HasColor()) {
+            vertices[vi].Color = InMesh.GetColors()[vi];
+        }
 
-		if (InMesh.HasUV())
-		{
-			vertices[vi].UV = InMesh.GetUVs()[vi];
-		}
-	}
+        if (InMesh.HasUV()) {
+            vertices[vi].UV = InMesh.GetUVs()[vi];
+        }
+    }
 
-	// Á¤Á¡ º¯È¯ ÁøÇà
-	VertexShader3D(vertices, InMatrix);
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ ï¿½ï¿½ï¿½ï¿½
+    VertexShader3D(vertices, InMatrix);
 
-	// ±×¸®±â¸ðµå ¼³Á¤
-	FillMode fm = FillMode::None;
-	if (InMesh.HasColor())
-	{
-		fm |= FillMode::Color;
-	}
-	if (InMesh.HasUV())
-	{
-		fm |= FillMode::Texture;
-	}
+    // ï¿½×¸ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    FillMode fm = FillMode::None;
+    if (InMesh.HasColor()) {
+        fm |= FillMode::Color;
+    }
+    if (InMesh.HasUV()) {
+        fm |= FillMode::Texture;
+    }
 
-	// »ï°¢Çü º°·Î ±×¸®±â
-	for (int ti = 0; ti < triangleCount; ++ti)
-	{
-		int bi0 = ti * 3, bi1 = ti * 3 + 1, bi2 = ti * 3 + 2;
-		std::vector<Vertex3D> tvs = { vertices[indice[bi0]] , vertices[indice[bi1]] , vertices[indice[bi2]] };
+    // ï¿½ï°¢ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½
+    for (int ti = 0; ti < triangleCount; ++ti) {
+        int bi0 = ti * 3, bi1 = ti * 3 + 1, bi2 = ti * 3 + 2;
+        std::vector<Vertex3D> tvs = {vertices[indice[bi0]], vertices[indice[bi1]], vertices[indice[bi2]]};
 
-		// µ¿Â÷ÁÂÇ¥°è¿¡¼­ Å¬¸®ÇÎÀ» À§ÇÑ ¼³Á¤
-		std::vector<PerspectiveTest> testPlanes = {
-			{ TestFuncW0, EdgeFuncW0 },
-			{ TestFuncNY, EdgeFuncNY },
-			{ TestFuncPY, EdgeFuncPY },
-			{ TestFuncNX, EdgeFuncNX },
-			{ TestFuncPX, EdgeFuncPX },
-			{ TestFuncFar, EdgeFuncFar },
-			{ TestFuncNear, EdgeFuncNear }
-		};
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç¥ï¿½è¿¡ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+        std::vector<PerspectiveTest> testPlanes = {
+            {TestFuncW0, EdgeFuncW0},
+            {TestFuncNY, EdgeFuncNY},
+            {TestFuncPY, EdgeFuncPY},
+            {TestFuncNX, EdgeFuncNX},
+            {TestFuncPX, EdgeFuncPX},
+            {TestFuncFar, EdgeFuncFar},
+            {TestFuncNear, EdgeFuncNear}
+        };
 
-		// µ¿Â÷ÁÂÇ¥°è¿¡¼­ Å¬¸®ÇÎ ÁøÇà
-		for (auto& p : testPlanes)
-		{
-			p.ClipTriangles(tvs);
-		}
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç¥ï¿½è¿¡ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+        for (auto& p : testPlanes) {
+            p.ClipTriangles(tvs);
+        }
 
-		size_t triangles = tvs.size() / 3;
-		for (size_t ti = 0; ti < triangles; ++ti)
-		{
-			size_t si = ti * 3;
-			std::vector<Vertex3D> sub(tvs.begin() + si, tvs.begin() + si + 3);
-			DrawTriangle3D(sub, InColor, fm);
-		}
-	}
+        size_t triangles = tvs.size() / 3;
+        for (size_t ti = 0; ti < triangles; ++ti) {
+            size_t si = ti * 3;
+            std::vector<Vertex3D> sub(tvs.begin() + si, tvs.begin() + si + 3);
+            DrawTriangle3D(sub, InColor, fm);
+        }
+    }
 }
 
-void SoftRenderer::DrawTriangle3D(std::vector<Vertex3D>& InVertices, const LinearColor& InColor, FillMode InFillMode)
-{
-	auto& r = GetRenderer();
-	const GameEngine& g = Get3DGameEngine();
+void SoftRenderer::DrawTriangle3D(std::vector<Vertex3D>& InVertices, const LinearColor& InColor, FillMode InFillMode) {
+    auto& r = GetRenderer();
+    const GameEngine& g = Get3DGameEngine();
 
-	for (auto& v : InVertices)
-	{
-		// ¹«ÇÑ ¿øÁ¡ÀÎ °æ¿ì, ¾à°£ º¸Á¤ÇØÁØ´Ù.
-		if (v.Position.W == 0.f) v.Position.W = SMALL_NUMBER;
+    for (auto& v : InVertices) {
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½, ï¿½à°£ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø´ï¿½.
+        if (v.Position.W == 0.f) v.Position.W = SMALL_NUMBER;
 
-		float invW = 1.f / v.Position.W;
-		v.Position.X *= invW;
-		v.Position.Y *= invW;
-		v.Position.Z *= invW;
-	}
+        float invW = 1.f / v.Position.W;
+        v.Position.X *= invW;
+        v.Position.Y *= invW;
+        v.Position.Z *= invW;
+    }
 
-	// ¹éÆäÀÌ½º ÄÃ¸µ ( µÞ¸éÀÌ¸é ±×¸®±â »ý·« )
-	Vector3 edge1 = (InVertices[1].Position - InVertices[0].Position).ToVector3();
-	Vector3 edge2 = (InVertices[2].Position - InVertices[0].Position).ToVector3();
-	float z = edge1.Cross(edge2).Z;
-	if (z <= 0.f)
-	{
-		return;
-	}
+    // ï¿½ï¿½ï¿½ï¿½ï¿½Ì½ï¿½ ï¿½Ã¸ï¿½ ( ï¿½Þ¸ï¿½ï¿½Ì¸ï¿½ ï¿½×¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ )
+    Vector3 edge1 = (InVertices[1].Position - InVertices[0].Position).ToVector3();
+    Vector3 edge2 = (InVertices[2].Position - InVertices[0].Position).ToVector3();
+    float z = edge1.Cross(edge2).Z;
+    if (z <= 0.f) {
+        return;
+    }
 
-	if (IsWireframeDrawing())
-	{
-		for (auto& v : InVertices)
-		{
-			v.Position.X *= _ScreenSize.X * 0.5f;
-			v.Position.Y *= _ScreenSize.Y * 0.5f;
-		}
+    if (IsWireframeDrawing()) {
+        for (auto& v : InVertices) {
+            v.Position.X *= _ScreenSize.X * 0.5f;
+            v.Position.Y *= _ScreenSize.Y * 0.5f;
+        }
 
-		LinearColor finalColor = _WireframeColor;
-		if (InColor != LinearColor::Error)
-		{
-			finalColor = InColor;
-		}
+        LinearColor finalColor = _WireframeColor;
+        if (InColor != LinearColor::Error) {
+            finalColor = InColor;
+        }
 
-		r.DrawLine(InVertices[0].Position, InVertices[1].Position, finalColor);
-		r.DrawLine(InVertices[0].Position, InVertices[2].Position, finalColor);
-		r.DrawLine(InVertices[1].Position, InVertices[2].Position, finalColor);
-	}
-	else
-	{
-		// »ï°¢Çü Ä¥ÇÏ±â
-		// »ï°¢ÇüÀÇ ¿µ¿ª ¼³Á¤
-		Vector2 minPos(Math::Min3(InVertices[0].Position.X, InVertices[1].Position.X, InVertices[2].Position.X), Math::Min3(InVertices[0].Position.Y, InVertices[1].Position.Y, InVertices[2].Position.Y));
-		Vector2 maxPos(Math::Max3(InVertices[0].Position.X, InVertices[1].Position.X, InVertices[2].Position.X), Math::Max3(InVertices[0].Position.Y, InVertices[1].Position.Y, InVertices[2].Position.Y));
+        r.DrawLine(InVertices[0].Position, InVertices[1].Position, finalColor);
+        r.DrawLine(InVertices[0].Position, InVertices[2].Position, finalColor);
+        r.DrawLine(InVertices[1].Position, InVertices[2].Position, finalColor);
+    }
+    else {
+        // ï¿½ï°¢ï¿½ï¿½ Ä¥ï¿½Ï±ï¿½
+        // ï¿½ï°¢ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+        Vector2 minPos(Math::Min3(InVertices[0].Position.X, InVertices[1].Position.X, InVertices[2].Position.X),
+                       Math::Min3(InVertices[0].Position.Y, InVertices[1].Position.Y, InVertices[2].Position.Y));
+        Vector2 maxPos(Math::Max3(InVertices[0].Position.X, InVertices[1].Position.X, InVertices[2].Position.X),
+                       Math::Max3(InVertices[0].Position.Y, InVertices[1].Position.Y, InVertices[2].Position.Y));
 
-		// ¹«°ÔÁß½ÉÁÂÇ¥¸¦ À§ÇØ Á¡À» º¤ÅÍ·Î º¯È¯
-		Vector2 u = InVertices[1].Position.ToVector2() - InVertices[0].Position.ToVector2();
-		Vector2 v = InVertices[2].Position.ToVector2() - InVertices[0].Position.ToVector2();
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ß½ï¿½ï¿½ï¿½Ç¥ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Í·ï¿½ ï¿½ï¿½È¯
+        Vector2 u = InVertices[1].Position.ToVector2() - InVertices[0].Position.ToVector2();
+        Vector2 v = InVertices[2].Position.ToVector2() - InVertices[0].Position.ToVector2();
 
-		// °øÅë ºÐ¸ð °ª ( uu * vv - uv * uv )
-		float udotv = u.Dot(v);
-		float vdotv = v.Dot(v);
-		float udotu = u.Dot(u);
-		float denominator = udotv * udotv - vdotv * udotu;
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½Ð¸ï¿½ ï¿½ï¿½ ( uu * vv - uv * uv )
+        float udotv = u.Dot(v);
+        float vdotv = v.Dot(v);
+        float udotu = u.Dot(u);
+        float denominator = udotv * udotv - vdotv * udotu;
 
-		// ÅðÈ­ »ï°¢Çü ÆÇÁ¤.
-		if (Math::EqualsInTolerance(denominator, 0.f))
-		{
-			return;
-		}
+        // ï¿½ï¿½È­ ï¿½ï°¢ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
+        if (Math::EqualsInTolerance(denominator, 0.f)) {
+            return;
+        }
 
-		float invDenominator = 1.f / denominator;
+        float invDenominator = 1.f / denominator;
 
-		// È­¸é»óÀÇ Á¡ ±¸ÇÏ±â
-		minPos.X *= _ScreenSize.X * 0.5f;
-		minPos.Y *= _ScreenSize.Y * 0.5f;
-		maxPos.X *= _ScreenSize.X * 0.5f;
-		maxPos.Y *= _ScreenSize.Y * 0.5f;
+        // È­ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Ï±ï¿½
+        minPos.X *= _ScreenSize.X * 0.5f;
+        minPos.Y *= _ScreenSize.Y * 0.5f;
+        maxPos.X *= _ScreenSize.X * 0.5f;
+        maxPos.Y *= _ScreenSize.Y * 0.5f;
 
-		ScreenPoint lowerLeftPoint = ScreenPoint::ToScreenCoordinate(_ScreenSize, minPos);
-		ScreenPoint upperRightPoint = ScreenPoint::ToScreenCoordinate(_ScreenSize, maxPos);
+        ScreenPoint lowerLeftPoint = ScreenPoint::ToScreenCoordinate(_ScreenSize, minPos);
+        ScreenPoint upperRightPoint = ScreenPoint::ToScreenCoordinate(_ScreenSize, maxPos);
 
-		// µÎ Á¡ÀÌ È­¸é ¹ÛÀ» ¹þ¾î³ª´Â °æ¿ì Å¬¸®ÇÎ Ã³¸®
-		lowerLeftPoint.X = Math::Max(0, lowerLeftPoint.X);
-		lowerLeftPoint.Y = Math::Min(_ScreenSize.Y, lowerLeftPoint.Y);
-		upperRightPoint.X = Math::Min(_ScreenSize.X, upperRightPoint.X);
-		upperRightPoint.Y = Math::Max(0, upperRightPoint.Y);
+        // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½î³ªï¿½ï¿½ ï¿½ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
+        lowerLeftPoint.X = Math::Max(0, lowerLeftPoint.X);
+        lowerLeftPoint.Y = Math::Min(_ScreenSize.Y, lowerLeftPoint.Y);
+        upperRightPoint.X = Math::Min(_ScreenSize.X, upperRightPoint.X);
+        upperRightPoint.Y = Math::Max(0, upperRightPoint.Y);
 
-		// »ï°¢Çü ¿µ¿ª ³» ¸ðµç Á¡À» Á¡°ËÇÏ°í »öÄ¥
-		for (int x = lowerLeftPoint.X; x <= upperRightPoint.X; ++x)
-		{
-			for (int y = upperRightPoint.Y; y <= lowerLeftPoint.Y; ++y)
-			{
-				ScreenPoint fragment = ScreenPoint(x, y);
-				Vector2 pointToTest = fragment.ToCartesianCoordinate(_ScreenSize);
-				pointToTest.X *= (2.f / _ScreenSize.X);
-				pointToTest.Y *= (2.f / _ScreenSize.Y);
-				Vector2 w = pointToTest - InVertices[0].Position.ToVector2();
-				float wdotu = w.Dot(u);
-				float wdotv = w.Dot(v);
+        // ï¿½ï°¢ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½Ä¥
+        for (int x = lowerLeftPoint.X; x <= upperRightPoint.X; ++x) {
+            for (int y = upperRightPoint.Y; y <= lowerLeftPoint.Y; ++y) {
+                ScreenPoint fragment = ScreenPoint(x, y);
+                Vector2 pointToTest = fragment.ToCartesianCoordinate(_ScreenSize);
+                pointToTest.X *= (2.f / _ScreenSize.X);
+                pointToTest.Y *= (2.f / _ScreenSize.Y);
+                Vector2 w = pointToTest - InVertices[0].Position.ToVector2();
+                float wdotu = w.Dot(u);
+                float wdotv = w.Dot(v);
 
-				float s = (wdotv * udotv - wdotu * vdotv) * invDenominator;
-				float t = (wdotu * udotv - wdotv * udotu) * invDenominator;
-				float oneMinusST = 1.f - s - t;
-				if (((s >= 0.f) && (s <= 1.f)) && ((t >= 0.f) && (t <= 1.f)) && ((oneMinusST >= 0.f) && (oneMinusST <= 1.f)))
-				{
-					// °¢ Á¡¸¶´Ù º¸Á¸µÈ ºä °ø°£ÀÇ z°ª
-					float invZ0 = 1.f / InVertices[0].Position.W;
-					float invZ1 = 1.f / InVertices[1].Position.W;
-					float invZ2 = 1.f / InVertices[2].Position.W;
+                float s = (wdotv * udotv - wdotu * vdotv) * invDenominator;
+                float t = (wdotu * udotv - wdotv * udotu) * invDenominator;
+                float oneMinusST = 1.f - s - t;
+                if (((s >= 0.f) && (s <= 1.f)) && ((t >= 0.f) && (t <= 1.f)) && ((oneMinusST >= 0.f) && (oneMinusST <=
+                    1.f))) {
+                    // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ zï¿½ï¿½
+                    float invZ0 = 1.f / InVertices[0].Position.W;
+                    float invZ1 = 1.f / InVertices[1].Position.W;
+                    float invZ2 = 1.f / InVertices[2].Position.W;
 
-					// Åõ¿µ º¸Á¤º¸°£¿¡ »ç¿ëÇÒ °øÅë ºÐ¸ð
-					float z = invZ0 * oneMinusST + invZ1 * s + invZ2 * t;
-					float invZ = 1.f / z;
+                    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ð¸ï¿½
+                    float z = invZ0 * oneMinusST + invZ1 * s + invZ2 * t;
+                    float invZ = 1.f / z;
 
-					float n = g.GetMainCamera().GetNearZ();
-					float f = g.GetMainCamera().GetFarZ();
-					float newDepth = (InVertices[0].Position.Z * oneMinusST * invZ0 + InVertices[1].Position.Z * s * invZ1 + InVertices[2].Position.Z * t * invZ2) * invZ;
-					float prevDepth = r.GetDepthBufferValue(fragment);
-					if (newDepth < prevDepth)
-					{
-						r.SetDepthBufferValue(fragment, newDepth);
-					}
-					else
-					{
-						// ÀÌ¹Ì ¾Õ¿¡ ¹«¾ð°¡ ±×·ÁÁ®ÀÖÀ¸¹Ç·Î ÇÈ¼¿±×¸®±â´Â »ý·«
-						continue;
-					}
+                    float n = g.GetMainCamera().GetNearZ();
+                    float f = g.GetMainCamera().GetFarZ();
+                    float newDepth = (InVertices[0].Position.Z * oneMinusST * invZ0 + InVertices[1].Position.Z * s *
+                        invZ1 + InVertices[2].Position.Z * t * invZ2) * invZ;
+                    float prevDepth = r.GetDepthBufferValue(fragment);
+                    if (newDepth < prevDepth) {
+                        r.SetDepthBufferValue(fragment, newDepth);
+                    }
+                    else {
+                        // ï¿½Ì¹ï¿½ ï¿½Õ¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½×·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ ï¿½È¼ï¿½ï¿½×¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+                        continue;
+                    }
 
-					if (IsDepthBufferDrawing())
-					{
-						// ½Ã°¢È­¸¦ À§ÇØ ¼±ÇüÈ­µÈ Èæ¹é °ª
-						float grayScale = (invZ - n) / (f - n);
+                    if (IsDepthBufferDrawing()) {
+                        // ï¿½Ã°ï¿½È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½
+                        float grayScale = (invZ - n) / (f - n);
 
-						// µª½º ¹öÆÛ ±×¸®±â
-						r.DrawPoint(fragment, LinearColor::White * grayScale);
-					}
-					else
-					{
-						// »ö»ó ÆÄ¶ó¹ÌÅÍ°¡ ¼³Á¤ ¾ÈµÈ °æ¿ì¿¡´Â Èò»öÀ» »ç¿ë
-						LinearColor paramColor = LinearColor::White;
-						if (InColor != LinearColor::Error)
-						{
-							paramColor = InColor;
-						}
+                        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½
+                        r.DrawPoint(fragment, LinearColor::White * grayScale);
+                    }
+                    else {
+                        // ï¿½ï¿½ï¿½ï¿½ ï¿½Ä¶ï¿½ï¿½ï¿½Í°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Èµï¿½ ï¿½ï¿½ì¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+                        LinearColor paramColor = LinearColor::White;
+                        if (InColor != LinearColor::Error) {
+                            paramColor = InColor;
+                        }
 
-						// ¹öÅØ½º ÄÃ·¯ ¶Ç´Â ÅØ½ºÃÄ ¸ÅÇÎÀ¸·Î ÃÖÁ¾ º¸°£µÈ »ö»ó
-						LinearColor fragmentColor = LinearColor::White;
-						if (InFillMode & FillMode::Color)
-						{
-							fragmentColor = (InVertices[0].Color * oneMinusST * invZ0 + InVertices[1].Color * s * invZ1 + InVertices[2].Color * t * invZ2) * invZ;
-						}
+                        // ï¿½ï¿½ï¿½Ø½ï¿½ ï¿½Ã·ï¿½ ï¿½Ç´ï¿½ ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+                        LinearColor fragmentColor = LinearColor::White;
+                        if (InFillMode & FillMode::Color) {
+                            fragmentColor = (InVertices[0].Color * oneMinusST * invZ0 + InVertices[1].Color * s * invZ1
+                                + InVertices[2].Color * t * invZ2) * invZ;
+                        }
 
-						if (InFillMode & FillMode::Texture)
-						{
-							// Åõ¿µº¸Á¤º¸°£À¸·Î º¸°£ÇÑ ÇØ´ç ÇÈ¼¿ÀÇ UV °ª
-							Vector2 targetUV = (InVertices[0].UV * oneMinusST * invZ0 + InVertices[1].UV * s * invZ1 + InVertices[2].UV * t * invZ2) * invZ;
+                        if (InFillMode & FillMode::Texture) {
+                            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø´ï¿½ ï¿½È¼ï¿½ï¿½ï¿½ UV ï¿½ï¿½
+                            Vector2 targetUV = (InVertices[0].UV * oneMinusST * invZ0 + InVertices[1].UV * s * invZ1 +
+                                InVertices[2].UV * t * invZ2) * invZ;
 
-							// ÅØ½ºÃÄ ¸ÅÇÎ ÁøÇà
-							LinearColor textureColor = g.GetTexture(GameEngine::DiffuseTexture).GetSample(targetUV);
-							fragmentColor = fragmentColor * textureColor;
-						}
+                            // ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+                            LinearColor textureColor = g.GetTexture(GameEngine::DiffuseTexture).GetSample(targetUV);
+                            fragmentColor = fragmentColor * textureColor;
+                        }
 
-						r.DrawPoint(fragment, FragmentShader3D(fragmentColor, paramColor));
-					}
-				}
-			}
-		}
-	}
+                        r.DrawPoint(fragment, FragmentShader3D(fragmentColor, paramColor));
+                    }
+                }
+            }
+        }
+    }
 }
-

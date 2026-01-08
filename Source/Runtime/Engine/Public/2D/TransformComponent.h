@@ -1,60 +1,62 @@
 #pragma once
 
-namespace CK
-{
-namespace DD
-{ 
+namespace CK {
+    namespace DD {
+        class TransformComponent {
+        public:
+            TransformComponent() = default;
 
-class TransformComponent
-{
-public:
-	TransformComponent() = default;
+        public:
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
+            void SetPosition(const Vector2& InPosition) { Position = InPosition; }
+            void AddPosition(const Vector2& InDeltaPosition) { Position += InDeltaPosition; }
+            void SetScale(const Vector2& InScale) { Scale = InScale; }
 
-public:
-	// °ÔÀÓ ·ÎÁ÷¿¡¼­ »ç¿ëÇÒ ¸â¹ö ÇÔ¼ö
-	void SetPosition(const Vector2& InPosition) { Position = InPosition; }
-	void AddPosition(const Vector2& InDeltaPosition) { Position += InDeltaPosition; }
-	void SetScale(const Vector2& InScale) { Scale = InScale; }
-	void SetRotation(float InDegree) { Rotation = InDegree; Update(); }
-	void AddRotation(float InDegree) { Rotation += InDegree; Update(); }
-	Vector2 GetPosition() const { return Position; }
-	Vector2 GetScale() const { return Scale; }
-	float GetRotation() const { return Rotation; }
-	const Vector2& GetLocalX() const { return Right; }
-	const Vector2& GetLocalY() const { return Up; }
+            void SetRotation(float InDegree) {
+                Rotation = InDegree;
+                Update();
+            }
 
-	// Çà·Ä »ý¼º ÇÔ¼ö
+            void AddRotation(float InDegree) {
+                Rotation += InDegree;
+                Update();
+            }
+
+            Vector2 GetPosition() const { return Position; }
+            Vector2 GetScale() const { return Scale; }
+            float GetRotation() const { return Rotation; }
+            const Vector2& GetLocalX() const { return Right; }
+            const Vector2& GetLocalY() const { return Up; }
+
+            // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
 	FORCEINLINE Matrix3x3 GetModelingMatrix() const;
 
-private:
+        private:
 	FORCEINLINE void Update();
 
-private:
-	Vector2 Position = Vector2::Zero;
-	float Rotation = 0.f;
-	Vector2 Scale = Vector2::One;
+        private:
+            Vector2 Position = Vector2::Zero;
+            float Rotation = 0.f;
+            Vector2 Scale = Vector2::One;
 
-	Vector2 Right = Vector2::UnitX;
-	Vector2 Up = Vector2::UnitY;
-};
+            Vector2 Right = Vector2::UnitX;
+            Vector2 Up = Vector2::UnitY;
+        };
 
-FORCEINLINE Matrix3x3 TransformComponent::GetModelingMatrix() const
-{
-	return Matrix3x3(
-		Vector3(Scale.X * Right.X, Scale.X * Right.Y, 0.f),
-		Vector3(Scale.Y * Up.X, Scale.Y * Up.Y, 0.f),
-		Vector3(Position.X, Position.Y, 1.f)
-	);
-}
+FORCEINLINE Matrix3x3 TransformComponent::GetModelingMatrix() const {
+            return Matrix3x3(
+                Vector3(Scale.X * Right.X, Scale.X * Right.Y, 0.f),
+                Vector3(Scale.Y * Up.X, Scale.Y * Up.Y, 0.f),
+                Vector3(Position.X, Position.Y, 1.f)
+            );
+        }
 
-FORCEINLINE void TransformComponent::Update()
-{
-	float sin, cos;
-	Math::GetSinCos(sin, cos, Rotation);
+FORCEINLINE void TransformComponent::Update() {
+            float sin, cos;
+            Math::GetSinCos(sin, cos, Rotation);
 
-	Right = Vector2(cos, sin);
-	Up = Vector2(-sin, cos);
-}
-
-}
+            Right = Vector2(cos, sin);
+            Up = Vector2(-sin, cos);
+        }
+    }
 }

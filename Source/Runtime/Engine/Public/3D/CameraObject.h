@@ -1,127 +1,119 @@
 #pragma once
 
-namespace CK
-{
-namespace DDD
-{
+namespace CK {
+    namespace DDD {
+        class CameraObject {
+        public:
+            CameraObject() = default;
 
-class CameraObject
-{
-public:
-	CameraObject() = default;
-	~CameraObject() { }
+            ~CameraObject() {
+            }
 
-public:
-	// Æ®·£½ºÆû
-	TransformComponent& GetTransform() { return _Transform; }
-	const TransformComponent& GetTransform() const { return _Transform; }
-	void SetParent(GameObject& InGameObject) { _Transform.SetParent(InGameObject.GetTransform()); }
+        public:
+            // Æ®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            TransformComponent& GetTransform() { return _Transform; }
+            const TransformComponent& GetTransform() const { return _Transform; }
+            void SetParent(GameObject& InGameObject) { _Transform.SetParent(InGameObject.GetTransform()); }
 
-	// Ä«¸Þ¶ó °ªÀ» °¡Á®¿À´Â ÇÔ¼ö
-	float GetFOV() const { return _FOV; }
-	float GetNearZ() const { return _NearZ; }
-	float GetFarZ() const { return _FarZ; }
-	const ScreenPoint& GetViewportSize() const { return _ViewportSize; }
+            // Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
+            float GetFOV() const { return _FOV; }
+            float GetNearZ() const { return _NearZ; }
+            float GetFarZ() const { return _FarZ; }
+            const ScreenPoint& GetViewportSize() const { return _ViewportSize; }
 
-	// Ä«¸Þ¶ó °ªÀ» ¼³Á¤ÇÏ´Â ÇÔ¼ö
-	void SetLookAtRotation(const Vector3& InTargetPosition, const Vector3& InUp = Vector3::UnitY);
-	void SetLookAtRotation(const GameObject& InGameObject, const Vector3& InUp = Vector3::UnitY);
-	void SetFOV(float InFOV) { _FOV = InFOV; }
-	void SetNearZ(float InNearZ) { _NearZ = InNearZ; }
-	void SetFarZ(float InFarZ) { _FarZ = InFarZ; }
-	void SetViewportSize(const ScreenPoint& InViewportSize) { _ViewportSize = InViewportSize; }
+            // Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½
+            void SetLookAtRotation(const Vector3& InTargetPosition, const Vector3& InUp = Vector3::UnitY);
+            void SetLookAtRotation(const GameObject& InGameObject, const Vector3& InUp = Vector3::UnitY);
+            void SetFOV(float InFOV) { _FOV = InFOV; }
+            void SetNearZ(float InNearZ) { _NearZ = InNearZ; }
+            void SetFarZ(float InFarZ) { _FarZ = InFarZ; }
+            void SetViewportSize(const ScreenPoint& InViewportSize) { _ViewportSize = InViewportSize; }
 
-	// Çà·Ä »ý¼º
+            // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	FORCEINLINE void GetViewAxes(Vector3& OutViewX, Vector3& OutViewY, Vector3& OutViewZ) const;
 	FORCEINLINE Matrix4x4 GetViewMatrix() const;
 	FORCEINLINE Matrix4x4 GetViewMatrixRotationOnly() const;
 	FORCEINLINE Matrix4x4 GetPerspectiveMatrix() const;
 	FORCEINLINE Matrix4x4 GetPerspectiveViewMatrix() const;
 
-private:
-	TransformComponent _Transform;
+        private:
+            TransformComponent _Transform;
 
-	float _FOV = 60.f;
-	float _NearZ = 5.5f;
-	float _FarZ = 5000.f;
-	ScreenPoint _ViewportSize;
-};
+            float _FOV = 60.f;
+            float _NearZ = 5.5f;
+            float _FarZ = 5000.f;
+            ScreenPoint _ViewportSize;
+        };
 
-FORCEINLINE void CameraObject::GetViewAxes(Vector3& OutViewX, Vector3& OutViewY, Vector3& OutViewZ) const
-{
-	Quaternion worldRotation = _Transform.GetWorldRotation();
-	OutViewZ = worldRotation.RotateVector(-Vector3::UnitZ);
-	OutViewX = worldRotation.RotateVector(-Vector3::UnitX);
-	OutViewY = worldRotation.RotateVector(Vector3::UnitY);
-}
+FORCEINLINE void CameraObject::GetViewAxes(Vector3& OutViewX, Vector3& OutViewY, Vector3& OutViewZ) const {
+            Quaternion worldRotation = _Transform.GetWorldRotation();
+            OutViewZ = worldRotation.RotateVector(-Vector3::UnitZ);
+            OutViewX = worldRotation.RotateVector(-Vector3::UnitX);
+            OutViewY = worldRotation.RotateVector(Vector3::UnitY);
+        }
 
-FORCEINLINE Matrix4x4 CameraObject::GetViewMatrix() const
-{
-	Vector3 viewX, viewY, viewZ;
-	GetViewAxes(viewX, viewY, viewZ);
-	Vector3 pos = _Transform.GetWorldPosition();
+FORCEINLINE Matrix4x4 CameraObject::GetViewMatrix() const {
+            Vector3 viewX, viewY, viewZ;
+            GetViewAxes(viewX, viewY, viewZ);
+            Vector3 pos = _Transform.GetWorldPosition();
 
-	return Matrix4x4(
-		Vector4(Vector3(viewX.X, viewY.X, viewZ.X), false),
-		Vector4(Vector3(viewX.Y, viewY.Y, viewZ.Y), false),
-		Vector4(Vector3(viewX.Z, viewY.Z, viewZ.Z), false),
-		Vector4(-viewX.Dot(pos), -viewY.Dot(pos), -viewZ.Dot(pos), 1.f)
-	);
-}
+            return Matrix4x4(
+                Vector4(Vector3(viewX.X, viewY.X, viewZ.X), false),
+                Vector4(Vector3(viewX.Y, viewY.Y, viewZ.Y), false),
+                Vector4(Vector3(viewX.Z, viewY.Z, viewZ.Z), false),
+                Vector4(-viewX.Dot(pos), -viewY.Dot(pos), -viewZ.Dot(pos), 1.f)
+            );
+        }
 
-FORCEINLINE Matrix4x4 CameraObject::GetViewMatrixRotationOnly() const
-{
-	Vector3 viewX, viewY, viewZ;
-	GetViewAxes(viewX, viewY, viewZ);
+FORCEINLINE Matrix4x4 CameraObject::GetViewMatrixRotationOnly() const {
+            Vector3 viewX, viewY, viewZ;
+            GetViewAxes(viewX, viewY, viewZ);
 
-	return Matrix4x4(
-		Vector4(Vector3(viewX.X, viewY.X, viewZ.X), false),
-		Vector4(Vector3(viewX.Y, viewY.Y, viewZ.Y), false),
-		Vector4(Vector3(viewX.Z, viewY.Z, viewZ.Z), false),
-		Vector4::UnitW
-	);
-}
+            return Matrix4x4(
+                Vector4(Vector3(viewX.X, viewY.X, viewZ.X), false),
+                Vector4(Vector3(viewX.Y, viewY.Y, viewZ.Y), false),
+                Vector4(Vector3(viewX.Z, viewY.Z, viewZ.Z), false),
+                Vector4::UnitW
+            );
+        }
 
-FORCEINLINE Matrix4x4 CameraObject::GetPerspectiveMatrix() const
-{
-	// Åõ¿µ Çà·Ä. ±íÀÌ °ªÀÇ ¹üÀ§´Â -1~1
-	float invA = 1.f / _ViewportSize.AspectRatio();
-	float d = 1.f / tanf(Math::Deg2Rad(_FOV) * 0.5f);
+FORCEINLINE Matrix4x4 CameraObject::GetPerspectiveMatrix() const {
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ -1~1
+            float invA = 1.f / _ViewportSize.AspectRatio();
+            float d = 1.f / tanf(Math::Deg2Rad(_FOV) * 0.5f);
 
-	// ±ÙÆò¸é°ú ¿øÆò¸é¿¡ ¹Ý´ë ºÎÈ£¸¦ ºÙ¿©¼­ °è»ê
-	float invNF = 1.f / (_NearZ - _FarZ);
-	float k = (_FarZ + _NearZ) * invNF;
-	float l = 2.f * _FarZ * _NearZ * invNF;
-	return Matrix4x4(
-		Vector4::UnitX * invA * d,
-		Vector4::UnitY * d,
-		Vector4(0.f, 0.f, k, -1.f),
-		Vector4(0.f, 0.f, l, 0.f));
-}
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½é¿¡ ï¿½Ý´ï¿½ ï¿½ï¿½È£ï¿½ï¿½ ï¿½Ù¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+            float invNF = 1.f / (_NearZ - _FarZ);
+            float k = (_FarZ + _NearZ) * invNF;
+            float l = 2.f * _FarZ * _NearZ * invNF;
+            return Matrix4x4(
+                Vector4::UnitX * invA * d,
+                Vector4::UnitY * d,
+                Vector4(0.f, 0.f, k, -1.f),
+                Vector4(0.f, 0.f, l, 0.f));
+        }
 
-FORCEINLINE Matrix4x4 CameraObject::GetPerspectiveViewMatrix() const
-{
-	// ºä Çà·Ä °ü·Ã ¿ä¼Ò
-	Vector3 viewX, viewY, viewZ;
-	GetViewAxes(viewX, viewY, viewZ);
-	Vector3 pos = _Transform.GetWorldPosition();
-	float zPos = viewZ.Dot(pos);
+FORCEINLINE Matrix4x4 CameraObject::GetPerspectiveViewMatrix() const {
+            // ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+            Vector3 viewX, viewY, viewZ;
+            GetViewAxes(viewX, viewY, viewZ);
+            Vector3 pos = _Transform.GetWorldPosition();
+            float zPos = viewZ.Dot(pos);
 
-	// Åõ¿µ Çà·Ä °ü·Ã ¿ä¼Ò
-	float invA = 1.f / _ViewportSize.AspectRatio();
-	float d = 1.f / tanf(Math::Deg2Rad(_FOV) * 0.5f);
-	float dx = invA * d;
-	float invNF = 1.f / (_NearZ - _FarZ);
-	float k = (_FarZ + _NearZ) * invNF;
-	float l = 2.f * _FarZ * _NearZ * invNF;
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+            float invA = 1.f / _ViewportSize.AspectRatio();
+            float d = 1.f / tanf(Math::Deg2Rad(_FOV) * 0.5f);
+            float dx = invA * d;
+            float invNF = 1.f / (_NearZ - _FarZ);
+            float k = (_FarZ + _NearZ) * invNF;
+            float l = 2.f * _FarZ * _NearZ * invNF;
 
-	return Matrix4x4(
-		Vector4(dx * viewX.X, d * viewY.X, k * viewZ.X, -viewZ.X),
-		Vector4(dx * viewX.Y, d * viewY.Y, k * viewZ.Y, -viewZ.Y),
-		Vector4(dx * viewX.Z, d * viewY.Z, k * viewZ.Z, -viewZ.Z),
-		Vector4(-dx * viewX.Dot(pos), -d * viewY.Dot(pos), -k * zPos + l, zPos)
-	);
-}
-
-}
+            return Matrix4x4(
+                Vector4(dx * viewX.X, d * viewY.X, k * viewZ.X, -viewZ.X),
+                Vector4(dx * viewX.Y, d * viewY.Y, k * viewZ.Y, -viewZ.Y),
+                Vector4(dx * viewX.Z, d * viewY.Z, k * viewZ.Z, -viewZ.Z),
+                Vector4(-dx * viewX.Dot(pos), -d * viewY.Dot(pos), -k * zPos + l, zPos)
+            );
+        }
+    }
 }

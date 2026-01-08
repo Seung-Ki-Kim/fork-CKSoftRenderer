@@ -1,9 +1,8 @@
-
 #include "Precompiled.h"
 #include <random>
 using namespace CK::DDD;
 
-// º» ¸íÄª
+// ï¿½ï¿½ ï¿½ï¿½Äª
 const std::string GameEngine::RootBone("RootBone");
 const std::string GameEngine::PelvisBone("PelvisBone");
 const std::string GameEngine::SpineBone("SpineBone");
@@ -13,354 +12,331 @@ const std::string GameEngine::NeckBone("NeckBone");
 const std::string GameEngine::LeftLegBone("LeftLegBone");
 const std::string GameEngine::RightLegBone("RightLegBone");
 
-// ¸Þ½Ã
+// ï¿½Þ½ï¿½
 const std::size_t GameEngine::CharacterMesh = std::hash<std::string>()("SK_Steve");;
 const std::size_t GameEngine::ArrowMesh = std::hash<std::string>()("SM_Arrow");;
 const std::size_t GameEngine::PlaneMesh = std::hash<std::string>()("SM_Plane");;
 
-// °ÔÀÓ ¿ÀºêÁ§Æ®
+// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
 const std::string GameEngine::PlayerGo("Player");
 const std::string GameEngine::CameraRigGo("CameraRig");
 
-// ÅØ½ºÃÄ
+// ï¿½Ø½ï¿½ï¿½ï¿½
 const std::size_t GameEngine::DiffuseTexture = std::hash<std::string>()("Diffuse");
 const std::string GameEngine::SteveTexturePath("Steve.png");
 
-struct GameObjectCompare
-{
-	bool operator()(const std::unique_ptr<GameObject>& lhs, std::size_t rhs)
-	{
-		return lhs->GetHash() < rhs;
-	}
+struct GameObjectCompare {
+    bool operator()(const std::unique_ptr<GameObject>& lhs, std::size_t rhs) {
+        return lhs->GetHash() < rhs;
+    }
 };
 
-void GameEngine::OnScreenResize(const ScreenPoint& InScreenSize)
-{
-	// È­¸é Å©±âÀÇ ¼³Á¤
-	_ScreenSize = InScreenSize;
-	_MainCamera.SetViewportSize(_ScreenSize);
+void GameEngine::OnScreenResize(const ScreenPoint& InScreenSize) {
+    // È­ï¿½ï¿½ Å©ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    _ScreenSize = InScreenSize;
+    _MainCamera.SetViewportSize(_ScreenSize);
 }
 
-bool GameEngine::Init()
-{
-	// ÀÌ¹Ì ÃÊ±âÈ­µÇ¾î ÀÖÀ¸¸é ÃÊ±âÈ­ ÁøÇàÇÏÁö ¾ÊÀ½.
-	if (_IsInitialized)
-	{
-		return true;
-	}
+bool GameEngine::Init() {
+    // ï¿½Ì¹ï¿½ ï¿½Ê±ï¿½È­ï¿½Ç¾ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
+    if (_IsInitialized) {
+        return true;
+    }
 
-	// È­¸é Å©±â°¡ ¿Ã¹Ù·Î ¼³Á¤µÇ¾î ÀÖ´ÂÁö È®ÀÎ
-	if (_ScreenSize.HasZero())
-	{
-		return false;
-	}
+    // È­ï¿½ï¿½ Å©ï¿½â°¡ ï¿½Ã¹Ù·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç¾ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ È®ï¿½ï¿½
+    if (_ScreenSize.HasZero()) {
+        return false;
+    }
 
-	if (!_InputManager.IsInputReady())
-	{
-		return false;
-	}
+    if (!_InputManager.IsInputReady()) {
+        return false;
+    }
 
-	if (!LoadResources())
-	{
-		return false;
-	}
+    if (!LoadResources()) {
+        return false;
+    }
 
-	if (!LoadScene())
-	{
-		return false;
-	}
+    if (!LoadScene()) {
+        return false;
+    }
 
-	_IsInitialized = true;
-	return _IsInitialized;
+    _IsInitialized = true;
+    return _IsInitialized;
 }
 
-bool GameEngine::LoadResources()
-{
-	// Ä³¸¯ÅÍ ¸Þ½Ã »ý¼º
-	constexpr Vector3 headSize(0.5f, 0.5f, 0.5f);
-	constexpr Vector3 bodySize(0.5f, 0.75f, 0.25f);
-	constexpr Vector3 armLegSize(0.25f, 0.75f, 0.25f);
+bool GameEngine::LoadResources() {
+    // Ä³ï¿½ï¿½ï¿½ï¿½ ï¿½Þ½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    constexpr Vector3 headSize(0.5f, 0.5f, 0.5f);
+    constexpr Vector3 bodySize(0.5f, 0.75f, 0.25f);
+    constexpr Vector3 armLegSize(0.25f, 0.75f, 0.25f);
 
-	constexpr BYTE totalCharacterParts = 6;
-	Mesh& characterMesh = CreateMesh(GameEngine::CharacterMesh);
-	auto& v = characterMesh.GetVertices();
-	auto& i = characterMesh.GetIndices();
-	auto& uv = characterMesh.GetUVs();
+    constexpr BYTE totalCharacterParts = 6;
+    Mesh& characterMesh = CreateMesh(GameEngine::CharacterMesh);
+    auto& v = characterMesh.GetVertices();
+    auto& i = characterMesh.GetIndices();
+    auto& uv = characterMesh.GetUVs();
 
-	// 6°³ÀÇ ÆÄÆ®·Î ±¸¼ºµÇ¾î ÀÖÀ½.
-	static constexpr std::array<Vector3, totalCharacterParts> cubeMeshSize = {
-		headSize, bodySize, armLegSize, armLegSize, armLegSize, armLegSize
-	};
+    // 6ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç¾ï¿½ ï¿½ï¿½ï¿½ï¿½.
+    static constexpr std::array<Vector3, totalCharacterParts> cubeMeshSize = {
+        headSize, bodySize, armLegSize, armLegSize, armLegSize, armLegSize
+    };
 
-	static constexpr std::array<Vector3, totalCharacterParts> cubeMeshOffset = {
-		Vector3(0.f, 3.5f, 0.f), Vector3(0.f, 2.25f, 0.f), Vector3(-0.75f, 2.25f, 0.f), Vector3(0.75f, 2.25f, 0.f), Vector3(-0.25f, 0.75f, 0.f), Vector3(0.25f, 0.75f, 0.f)
-	};
+    static constexpr std::array<Vector3, totalCharacterParts> cubeMeshOffset = {
+        Vector3(0.f, 3.5f, 0.f), Vector3(0.f, 2.25f, 0.f), Vector3(-0.75f, 2.25f, 0.f), Vector3(0.75f, 2.25f, 0.f),
+        Vector3(-0.25f, 0.75f, 0.f), Vector3(0.25f, 0.75f, 0.f)
+    };
 
-	for (size_t part = 0; part < totalCharacterParts; part++)
-	{
-		std::transform(cubeMeshPositions.begin(), cubeMeshPositions.end(), std::back_inserter(v), [&](auto& p) { return p * cubeMeshSize[part] + cubeMeshOffset[part]; });
-		std::transform(cubeMeshIndice.begin(), cubeMeshIndice.end(), std::back_inserter(i), [&](auto& p) { return p + 24 * part; });
-	}
+    for (size_t part = 0; part < totalCharacterParts; part++) {
+        std::transform(cubeMeshPositions.begin(), cubeMeshPositions.end(), std::back_inserter(v), [&](auto& p) {
+            return p * cubeMeshSize[part] + cubeMeshOffset[part];
+        });
+        std::transform(cubeMeshIndice.begin(), cubeMeshIndice.end(), std::back_inserter(i),
+                       [&](auto& p) { return p + 24 * part; });
+    }
 
-	uv = {
-		// HeadRight
-		Vector2(0.f, 48.f) / 64.f, Vector2(8.f, 48.f) / 64.f, Vector2(8.f, 56.f) / 64.f, Vector2(0.f, 56.f) / 64.f,
-		// HeadFront
-		Vector2(8.f, 48.f) / 64.f, Vector2(8.f, 56.f) / 64.f, Vector2(16.f, 56.f) / 64.f, Vector2(16.f, 48.f) / 64.f,
-		// HeadBack
-		Vector2(32.f, 48.f) / 64.f, Vector2(32.f, 56.f) / 64.f, Vector2(24.f, 56.f) / 64.f, Vector2(24.f, 48.f) / 64.f,
-		// HeadLeft
-		Vector2(24.f, 48.f) / 64.f, Vector2(16.f, 48.f) / 64.f, Vector2(16.f, 56.f) / 64.f, Vector2(24.f, 56.f) / 64.f,
-		// HeadTop
-		Vector2(8.f, 64.f) / 64.f, Vector2(16.f, 64.f) / 64.f, Vector2(16.f, 56.f) / 64.f, Vector2(8.f, 56.f) / 64.f,
-		// HeadBottom
-		Vector2(16.f, 64.f) / 64.f, Vector2(24.f, 64.f) / 64.f, Vector2(24.f, 56.f) / 64.f, Vector2(16.f, 56.f) / 64.f,
-		// BodyRight
-		Vector2(16.f, 32.f) / 64.f, Vector2(20.f, 32.f) / 64.f, Vector2(20.f, 44.f) / 64.f, Vector2(16.f, 44.f) / 64.f,
-		// BodyFront
-		Vector2(20.f, 32.f) / 64.f, Vector2(20.f, 44.f) / 64.f, Vector2(28.f, 44.f) / 64.f, Vector2(28.f, 32.f) / 64.f,
-		// BodyBack
-		Vector2(36.f, 32.f) / 64.f, Vector2(36.f, 44.f) / 64.f, Vector2(28.f, 44.f) / 64.f, Vector2(28.f, 32.f) / 64.f,
-		// BodyLeft
-		Vector2(40.f, 32.f) / 64.f, Vector2(36.f, 32.f) / 64.f, Vector2(36.f, 44.f) / 64.f, Vector2(40.f, 44.f) / 64.f,
-		// BodyTop
-		Vector2(20.f, 48.f) / 64.f, Vector2(28.f, 48.f) / 64.f, Vector2(28.f, 44.f) / 64.f, Vector2(20.f, 44.f) / 64.f,
-		// BodyBottom
-		Vector2(28.f, 48.f) / 64.f, Vector2(36.f, 48.f) / 64.f, Vector2(36.f, 44.f) / 64.f, Vector2(28.f, 44.f) / 64.f,
-		// LeftArmRight
-		Vector2(32.f, 0.f) / 64.f, Vector2(36.f, 0.f) / 64.f, Vector2(36.f, 12.f) / 64.f, Vector2(32.f, 12.f) / 64.f,
-		// LeftArmFront
-		Vector2(36.f, 0.f) / 64.f, Vector2(36.f, 12.f) / 64.f, Vector2(40.f, 12.f) / 64.f, Vector2(40.f, 0.f) / 64.f,
-		// LeftArmBack
-		Vector2(44.f, 0.f) / 64.f, Vector2(44.f, 12.f) / 64.f, Vector2(40.f, 12.f) / 64.f, Vector2(40.f, 0.f) / 64.f,
-		// LeftArmLeft
-		Vector2(48.f, 0.f) / 64.f, Vector2(44.f, 0.f) / 64.f, Vector2(44.f, 12.f) / 64.f, Vector2(48.f, 12.f) / 64.f,
-		// LeftArmTop
-		Vector2(36.f, 16.f) / 64.f, Vector2(40.f, 16.f) / 64.f, Vector2(40.f, 12.f) / 64.f, Vector2(36.f, 12.f) / 64.f,
-		// LeftArmBottom
-		Vector2(40.f, 16.f) / 64.f, Vector2(44.f, 16.f) / 64.f, Vector2(44.f, 12.f) / 64.f, Vector2(40.f, 12.f) / 64.f,
-		// RightArmRight
-		Vector2(40.f, 32.f) / 64.f, Vector2(44.f, 32.f) / 64.f, Vector2(44.f, 44.f) / 64.f, Vector2(40.f, 44.f) / 64.f,
-		// RightArmFront
-		Vector2(44.f, 32.f) / 64.f, Vector2(44.f, 44.f) / 64.f, Vector2(48.f, 44.f) / 64.f, Vector2(48.f, 32.f) / 64.f,
-		// RightArmBack
-		Vector2(52.f, 32.f) / 64.f, Vector2(52.f, 44.f) / 64.f, Vector2(48.f, 44.f) / 64.f, Vector2(48.f, 32.f) / 64.f,
-		// RightArmLeft
-		Vector2(56.f, 32.f) / 64.f, Vector2(52.f, 32.f) / 64.f, Vector2(52.f, 44.f) / 64.f, Vector2(56.f, 44.f) / 64.f,
-		// RightArmTop
-		Vector2(44.f, 48.f) / 64.f, Vector2(48.f, 48.f) / 64.f, Vector2(48.f, 44.f) / 64.f, Vector2(44.f, 44.f) / 64.f,
-		// RightArmBottom
-		Vector2(48.f, 48.f) / 64.f, Vector2(52.f, 48.f) / 64.f, Vector2(52.f, 44.f) / 64.f, Vector2(48.f, 44.f) / 64.f,
-		// LeftLegRight
-		Vector2(16.f, 0.f) / 64.f, Vector2(20.f, 0.f) / 64.f, Vector2(20.f, 12.f) / 64.f, Vector2(16.f, 12.f) / 64.f,
-		// LeftLegFront
-		Vector2(20.f, 0.f) / 64.f, Vector2(20.f, 12.f) / 64.f, Vector2(24.f, 12.f) / 64.f, Vector2(24.f, 0.f) / 64.f,
-		// LeftLegBack
-		Vector2(28.f, 0.f) / 64.f, Vector2(28.f, 12.f) / 64.f, Vector2(24.f, 12.f) / 64.f, Vector2(24.f, 0.f) / 64.f,
-		// LeftLegLeft
-		Vector2(32.f, 0.f) / 64.f, Vector2(28.f, 0.f) / 64.f, Vector2(28.f, 12.f) / 64.f, Vector2(32.f, 12.f) / 64.f,
-		// LeftLegTop
-		Vector2(20.f, 16.f) / 64.f, Vector2(24.f, 16.f) / 64.f, Vector2(24.f, 12.f) / 64.f, Vector2(20.f, 12.f) / 64.f,
-		// LeftLegBottom
-		Vector2(24.f, 16.f) / 64.f, Vector2(28.f, 16.f) / 64.f, Vector2(28.f, 12.f) / 64.f, Vector2(24.f, 12.f) / 64.f,
-		// RightLegRight
-		Vector2(0.f, 32.f) / 64.f, Vector2(4.f, 32.f) / 64.f, Vector2(4.f, 44.f) / 64.f, Vector2(0.f, 44.f) / 64.f,
-		// RightLegFront
-		Vector2(4.f, 32.f) / 64.f, Vector2(4.f, 44.f) / 64.f, Vector2(8.f, 44.f) / 64.f, Vector2(8.f, 32.f) / 64.f,
-		// RightLegBack
-		Vector2(12.f, 32.f) / 64.f, Vector2(12.f, 44.f) / 64.f, Vector2(8.f, 44.f) / 64.f, Vector2(8.f, 32.f) / 64.f,
-		// RightLegLeft
-		Vector2(16.f, 32.f) / 64.f, Vector2(12.f, 32.f) / 64.f, Vector2(12.f, 44.f) / 64.f, Vector2(16.f, 44.f) / 64.f,
-		// RightLegTop
-		Vector2(4.f, 48.f) / 64.f, Vector2(8.f, 48.f) / 64.f, Vector2(8.f, 44.f) / 64.f, Vector2(4.f, 44.f) / 64.f,
-		// RightLegBottom
-		Vector2(8.f, 48.f) / 64.f, Vector2(12.f, 48.f) / 64.f, Vector2(12.f, 44.f) / 64.f, Vector2(8.f, 44.f) / 64.f
-	};
+    uv = {
+        // HeadRight
+        Vector2(0.f, 48.f) / 64.f, Vector2(8.f, 48.f) / 64.f, Vector2(8.f, 56.f) / 64.f, Vector2(0.f, 56.f) / 64.f,
+        // HeadFront
+        Vector2(8.f, 48.f) / 64.f, Vector2(8.f, 56.f) / 64.f, Vector2(16.f, 56.f) / 64.f, Vector2(16.f, 48.f) / 64.f,
+        // HeadBack
+        Vector2(32.f, 48.f) / 64.f, Vector2(32.f, 56.f) / 64.f, Vector2(24.f, 56.f) / 64.f, Vector2(24.f, 48.f) / 64.f,
+        // HeadLeft
+        Vector2(24.f, 48.f) / 64.f, Vector2(16.f, 48.f) / 64.f, Vector2(16.f, 56.f) / 64.f, Vector2(24.f, 56.f) / 64.f,
+        // HeadTop
+        Vector2(8.f, 64.f) / 64.f, Vector2(16.f, 64.f) / 64.f, Vector2(16.f, 56.f) / 64.f, Vector2(8.f, 56.f) / 64.f,
+        // HeadBottom
+        Vector2(16.f, 64.f) / 64.f, Vector2(24.f, 64.f) / 64.f, Vector2(24.f, 56.f) / 64.f, Vector2(16.f, 56.f) / 64.f,
+        // BodyRight
+        Vector2(16.f, 32.f) / 64.f, Vector2(20.f, 32.f) / 64.f, Vector2(20.f, 44.f) / 64.f, Vector2(16.f, 44.f) / 64.f,
+        // BodyFront
+        Vector2(20.f, 32.f) / 64.f, Vector2(20.f, 44.f) / 64.f, Vector2(28.f, 44.f) / 64.f, Vector2(28.f, 32.f) / 64.f,
+        // BodyBack
+        Vector2(36.f, 32.f) / 64.f, Vector2(36.f, 44.f) / 64.f, Vector2(28.f, 44.f) / 64.f, Vector2(28.f, 32.f) / 64.f,
+        // BodyLeft
+        Vector2(40.f, 32.f) / 64.f, Vector2(36.f, 32.f) / 64.f, Vector2(36.f, 44.f) / 64.f, Vector2(40.f, 44.f) / 64.f,
+        // BodyTop
+        Vector2(20.f, 48.f) / 64.f, Vector2(28.f, 48.f) / 64.f, Vector2(28.f, 44.f) / 64.f, Vector2(20.f, 44.f) / 64.f,
+        // BodyBottom
+        Vector2(28.f, 48.f) / 64.f, Vector2(36.f, 48.f) / 64.f, Vector2(36.f, 44.f) / 64.f, Vector2(28.f, 44.f) / 64.f,
+        // LeftArmRight
+        Vector2(32.f, 0.f) / 64.f, Vector2(36.f, 0.f) / 64.f, Vector2(36.f, 12.f) / 64.f, Vector2(32.f, 12.f) / 64.f,
+        // LeftArmFront
+        Vector2(36.f, 0.f) / 64.f, Vector2(36.f, 12.f) / 64.f, Vector2(40.f, 12.f) / 64.f, Vector2(40.f, 0.f) / 64.f,
+        // LeftArmBack
+        Vector2(44.f, 0.f) / 64.f, Vector2(44.f, 12.f) / 64.f, Vector2(40.f, 12.f) / 64.f, Vector2(40.f, 0.f) / 64.f,
+        // LeftArmLeft
+        Vector2(48.f, 0.f) / 64.f, Vector2(44.f, 0.f) / 64.f, Vector2(44.f, 12.f) / 64.f, Vector2(48.f, 12.f) / 64.f,
+        // LeftArmTop
+        Vector2(36.f, 16.f) / 64.f, Vector2(40.f, 16.f) / 64.f, Vector2(40.f, 12.f) / 64.f, Vector2(36.f, 12.f) / 64.f,
+        // LeftArmBottom
+        Vector2(40.f, 16.f) / 64.f, Vector2(44.f, 16.f) / 64.f, Vector2(44.f, 12.f) / 64.f, Vector2(40.f, 12.f) / 64.f,
+        // RightArmRight
+        Vector2(40.f, 32.f) / 64.f, Vector2(44.f, 32.f) / 64.f, Vector2(44.f, 44.f) / 64.f, Vector2(40.f, 44.f) / 64.f,
+        // RightArmFront
+        Vector2(44.f, 32.f) / 64.f, Vector2(44.f, 44.f) / 64.f, Vector2(48.f, 44.f) / 64.f, Vector2(48.f, 32.f) / 64.f,
+        // RightArmBack
+        Vector2(52.f, 32.f) / 64.f, Vector2(52.f, 44.f) / 64.f, Vector2(48.f, 44.f) / 64.f, Vector2(48.f, 32.f) / 64.f,
+        // RightArmLeft
+        Vector2(56.f, 32.f) / 64.f, Vector2(52.f, 32.f) / 64.f, Vector2(52.f, 44.f) / 64.f, Vector2(56.f, 44.f) / 64.f,
+        // RightArmTop
+        Vector2(44.f, 48.f) / 64.f, Vector2(48.f, 48.f) / 64.f, Vector2(48.f, 44.f) / 64.f, Vector2(44.f, 44.f) / 64.f,
+        // RightArmBottom
+        Vector2(48.f, 48.f) / 64.f, Vector2(52.f, 48.f) / 64.f, Vector2(52.f, 44.f) / 64.f, Vector2(48.f, 44.f) / 64.f,
+        // LeftLegRight
+        Vector2(16.f, 0.f) / 64.f, Vector2(20.f, 0.f) / 64.f, Vector2(20.f, 12.f) / 64.f, Vector2(16.f, 12.f) / 64.f,
+        // LeftLegFront
+        Vector2(20.f, 0.f) / 64.f, Vector2(20.f, 12.f) / 64.f, Vector2(24.f, 12.f) / 64.f, Vector2(24.f, 0.f) / 64.f,
+        // LeftLegBack
+        Vector2(28.f, 0.f) / 64.f, Vector2(28.f, 12.f) / 64.f, Vector2(24.f, 12.f) / 64.f, Vector2(24.f, 0.f) / 64.f,
+        // LeftLegLeft
+        Vector2(32.f, 0.f) / 64.f, Vector2(28.f, 0.f) / 64.f, Vector2(28.f, 12.f) / 64.f, Vector2(32.f, 12.f) / 64.f,
+        // LeftLegTop
+        Vector2(20.f, 16.f) / 64.f, Vector2(24.f, 16.f) / 64.f, Vector2(24.f, 12.f) / 64.f, Vector2(20.f, 12.f) / 64.f,
+        // LeftLegBottom
+        Vector2(24.f, 16.f) / 64.f, Vector2(28.f, 16.f) / 64.f, Vector2(28.f, 12.f) / 64.f, Vector2(24.f, 12.f) / 64.f,
+        // RightLegRight
+        Vector2(0.f, 32.f) / 64.f, Vector2(4.f, 32.f) / 64.f, Vector2(4.f, 44.f) / 64.f, Vector2(0.f, 44.f) / 64.f,
+        // RightLegFront
+        Vector2(4.f, 32.f) / 64.f, Vector2(4.f, 44.f) / 64.f, Vector2(8.f, 44.f) / 64.f, Vector2(8.f, 32.f) / 64.f,
+        // RightLegBack
+        Vector2(12.f, 32.f) / 64.f, Vector2(12.f, 44.f) / 64.f, Vector2(8.f, 44.f) / 64.f, Vector2(8.f, 32.f) / 64.f,
+        // RightLegLeft
+        Vector2(16.f, 32.f) / 64.f, Vector2(12.f, 32.f) / 64.f, Vector2(12.f, 44.f) / 64.f, Vector2(16.f, 44.f) / 64.f,
+        // RightLegTop
+        Vector2(4.f, 48.f) / 64.f, Vector2(8.f, 48.f) / 64.f, Vector2(8.f, 44.f) / 64.f, Vector2(4.f, 44.f) / 64.f,
+        // RightLegBottom
+        Vector2(8.f, 48.f) / 64.f, Vector2(12.f, 48.f) / 64.f, Vector2(12.f, 44.f) / 64.f, Vector2(8.f, 44.f) / 64.f
+    };
 
-	// Ä³¸¯ÅÍ ½ºÄÌ·¹Å» ¸Þ½Ã ¼³Á¤
-	characterMesh.SetMeshType(MeshType::Skinned);
-	auto& cb = characterMesh.GetConnectedBones();
-	auto& w = characterMesh.GetWeights();
-	auto& bones = characterMesh.GetBones();
+    // Ä³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì·ï¿½Å» ï¿½Þ½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    characterMesh.SetMeshType(MeshType::Skinned);
+    auto& cb = characterMesh.GetConnectedBones();
+    auto& w = characterMesh.GetWeights();
+    auto& bones = characterMesh.GetBones();
 
-	// º» »ý¼º
-	bones = {
-		{ GameEngine::RootBone, Bone(GameEngine::RootBone, Transform()) },
-		{ GameEngine::PelvisBone, Bone(GameEngine::PelvisBone, Transform(Vector3(0.f, 1.5f, 0.f))) },
-		{ GameEngine::SpineBone, Bone(GameEngine::SpineBone, Transform(Vector3(0.f, 2.25f, 0.f))) },
-		{ GameEngine::LeftArmBone, Bone(GameEngine::LeftArmBone, Transform(Vector3(-0.75f, 3.f, 0.f))) },
-		{ GameEngine::RightArmBone, Bone(GameEngine::RightArmBone, Transform(Vector3(0.75f, 3.f, 0.f))) },
-		{ GameEngine::LeftLegBone, Bone(GameEngine::LeftLegBone, Transform(Vector3(0.25f, 1.5f, 0.f))) },
-		{ GameEngine::RightLegBone, Bone(GameEngine::RightLegBone, Transform(Vector3(-0.25f, 1.5f, 0.f))) },
-		{ GameEngine::NeckBone, Bone(GameEngine::NeckBone, Transform(Vector3(0.f, 3.f, 0.f))) }
-	};
+    // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    bones = {
+        {GameEngine::RootBone, Bone(GameEngine::RootBone, Transform())},
+        {GameEngine::PelvisBone, Bone(GameEngine::PelvisBone, Transform(Vector3(0.f, 1.5f, 0.f)))},
+        {GameEngine::SpineBone, Bone(GameEngine::SpineBone, Transform(Vector3(0.f, 2.25f, 0.f)))},
+        {GameEngine::LeftArmBone, Bone(GameEngine::LeftArmBone, Transform(Vector3(-0.75f, 3.f, 0.f)))},
+        {GameEngine::RightArmBone, Bone(GameEngine::RightArmBone, Transform(Vector3(0.75f, 3.f, 0.f)))},
+        {GameEngine::LeftLegBone, Bone(GameEngine::LeftLegBone, Transform(Vector3(0.25f, 1.5f, 0.f)))},
+        {GameEngine::RightLegBone, Bone(GameEngine::RightLegBone, Transform(Vector3(-0.25f, 1.5f, 0.f)))},
+        {GameEngine::NeckBone, Bone(GameEngine::NeckBone, Transform(Vector3(0.f, 3.f, 0.f)))}
+    };
 
-	// º»ÀÇ °èÃþ ±¸Á¶ »ý¼º
-	Bone& root = characterMesh.GetBone(GameEngine::RootBone);
-	Bone& pelvis = characterMesh.GetBone(GameEngine::PelvisBone);
-	pelvis.SetParent(root);
-	Bone& spine = characterMesh.GetBone(GameEngine::SpineBone);
-	spine.SetParent(pelvis);
-	Bone& leftArm = characterMesh.GetBone(GameEngine::LeftArmBone);
-	leftArm.SetParent(spine);
-	Bone& rightArm = characterMesh.GetBone(GameEngine::RightArmBone);
-	rightArm.SetParent(spine);
-	Bone& leftLeg = characterMesh.GetBone(GameEngine::LeftLegBone);
-	leftLeg.SetParent(pelvis);
-	Bone& rightLeg = characterMesh.GetBone(GameEngine::RightLegBone);
-	rightLeg.SetParent(pelvis);
-	Bone& neck = characterMesh.GetBone(GameEngine::NeckBone);
-	neck.SetParent(spine);
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    Bone& root = characterMesh.GetBone(GameEngine::RootBone);
+    Bone& pelvis = characterMesh.GetBone(GameEngine::PelvisBone);
+    pelvis.SetParent(root);
+    Bone& spine = characterMesh.GetBone(GameEngine::SpineBone);
+    spine.SetParent(pelvis);
+    Bone& leftArm = characterMesh.GetBone(GameEngine::LeftArmBone);
+    leftArm.SetParent(spine);
+    Bone& rightArm = characterMesh.GetBone(GameEngine::RightArmBone);
+    rightArm.SetParent(spine);
+    Bone& leftLeg = characterMesh.GetBone(GameEngine::LeftLegBone);
+    leftLeg.SetParent(pelvis);
+    Bone& rightLeg = characterMesh.GetBone(GameEngine::RightLegBone);
+    rightLeg.SetParent(pelvis);
+    Bone& neck = characterMesh.GetBone(GameEngine::NeckBone);
+    neck.SetParent(spine);
 
-	// ¸Þ½Ã¿¡ ¸®±ë 
-	static std::array<std::string, 6> boneOrder = {
-		GameEngine::NeckBone, GameEngine::SpineBone, GameEngine::LeftArmBone, GameEngine::RightArmBone, GameEngine::LeftLegBone, GameEngine::RightLegBone
-	};
+    // ï¿½Þ½Ã¿ï¿½ ï¿½ï¿½ï¿½ï¿½ 
+    static std::array<std::string, 6> boneOrder = {
+        GameEngine::NeckBone, GameEngine::SpineBone, GameEngine::LeftArmBone, GameEngine::RightArmBone,
+        GameEngine::LeftLegBone, GameEngine::RightLegBone
+    };
 
-	cb.resize(v.size());
-	w.resize(v.size());
-	std::fill(cb.begin(), cb.end(), 1);
+    cb.resize(v.size());
+    w.resize(v.size());
+    std::fill(cb.begin(), cb.end(), 1);
 
-	for (size_t part = 0; part < 6; part++)
-	{
-		Weight weight;
-		weight.Bones = { boneOrder[part] };
-		weight.Values = { 1.f };
-		auto startIt = w.begin() + part * 24;
-		std::fill(startIt, startIt + 24, weight);
-	}
+    for (size_t part = 0; part < 6; part++) {
+        Weight weight;
+        weight.Bones = {boneOrder[part]};
+        weight.Values = {1.f};
+        auto startIt = w.begin() + part * 24;
+        std::fill(startIt, startIt + 24, weight);
+    }
 
-	characterMesh.CalculateBounds();
+    characterMesh.CalculateBounds();
 
-	// È­»ìÇ¥ ¸Þ½Ã (±âÁî¸ð ¿ë)
-	Mesh& arrow = CreateMesh(GameEngine::ArrowMesh);
-	arrow.GetVertices().resize(arrowPositions.size());
-	arrow.GetIndices().resize(arrowIndice.size());
-	arrow.GetColors().resize(arrowPositions.size());
-	std::copy(arrowPositions.begin(), arrowPositions.end(), arrow.GetVertices().begin());
-	std::copy(arrowIndice.begin(), arrowIndice.end(), arrow.GetIndices().begin());
-	std::fill(arrow.GetColors().begin(), arrow.GetColors().end(), LinearColor::Gray);
+    // È­ï¿½ï¿½Ç¥ ï¿½Þ½ï¿½ (ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½)
+    Mesh& arrow = CreateMesh(GameEngine::ArrowMesh);
+    arrow.GetVertices().resize(arrowPositions.size());
+    arrow.GetIndices().resize(arrowIndice.size());
+    arrow.GetColors().resize(arrowPositions.size());
+    std::copy(arrowPositions.begin(), arrowPositions.end(), arrow.GetVertices().begin());
+    std::copy(arrowIndice.begin(), arrowIndice.end(), arrow.GetIndices().begin());
+    std::fill(arrow.GetColors().begin(), arrow.GetColors().end(), LinearColor::Gray);
 
-	// ¹Ù´Ú ¸Þ½Ã (±âÁî¸ð ¿ë)
-	int planeHalfSize = 3;
-	Mesh& plane = CreateMesh(GameEngine::PlaneMesh);
-	for (int z = -planeHalfSize; z <= planeHalfSize; z++)
-	{
-		for (int x = -planeHalfSize; x <= planeHalfSize; x++)
-		{
-			plane.GetVertices().push_back(Vector3((float)x, 0.f, (float)z));
-		}
-	}
+    // ï¿½Ù´ï¿½ ï¿½Þ½ï¿½ (ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½)
+    int planeHalfSize = 3;
+    Mesh& plane = CreateMesh(GameEngine::PlaneMesh);
+    for (int z = -planeHalfSize; z <= planeHalfSize; z++) {
+        for (int x = -planeHalfSize; x <= planeHalfSize; x++) {
+            plane.GetVertices().push_back(Vector3((float)x, 0.f, (float)z));
+        }
+    }
 
-	int xIndex = 0;
-	for (int tx = 0; tx < planeHalfSize * 2; tx++)
-	{
-		for (int ty = 0; ty < planeHalfSize * 2; ty++)
-		{
-			int v0 = xIndex + tx + (planeHalfSize * 2 + 1) * (ty + 1);
-			int v1 = xIndex + tx + (planeHalfSize * 2 + 1) * ty;
-			int v2 = v1 + 1;
-			int v3 = v0 + 1;
-			std::vector<size_t> quad = { (size_t)v0, (size_t)v2, (size_t)v1, (size_t)v0, (size_t)v3, (size_t)v2 };
-			plane.GetIndices().insert(plane.GetIndices().end(), quad.begin(), quad.end());
-		}
-	}
+    int xIndex = 0;
+    for (int tx = 0; tx < planeHalfSize * 2; tx++) {
+        for (int ty = 0; ty < planeHalfSize * 2; ty++) {
+            int v0 = xIndex + tx + (planeHalfSize * 2 + 1) * (ty + 1);
+            int v1 = xIndex + tx + (planeHalfSize * 2 + 1) * ty;
+            int v2 = v1 + 1;
+            int v3 = v0 + 1;
+            std::vector<size_t> quad = {(size_t)v0, (size_t)v2, (size_t)v1, (size_t)v0, (size_t)v3, (size_t)v2};
+            plane.GetIndices().insert(plane.GetIndices().end(), quad.begin(), quad.end());
+        }
+    }
 
-	// ÅØ½ºÃÄ ·Îµù
-	Texture& diffuseTexture = CreateTexture(GameEngine::DiffuseTexture, GameEngine::SteveTexturePath);
-	assert(diffuseTexture.IsIntialized());
+    // ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½Îµï¿½
+    Texture& diffuseTexture = CreateTexture(GameEngine::DiffuseTexture, GameEngine::SteveTexturePath);
+    assert(diffuseTexture.IsIntialized());
 
-	return true;
+    return true;
 }
 
-bool GameEngine::LoadScene()
-{
-	// ÇÃ·¹ÀÌ¾î
-	constexpr float playerScale = 100.f;
+bool GameEngine::LoadScene() {
+    // ï¿½Ã·ï¿½ï¿½Ì¾ï¿½
+    constexpr float playerScale = 100.f;
 
-	GameObject& goPlayer = CreateNewGameObject(GameEngine::PlayerGo);
-	goPlayer.SetMesh(GameEngine::CharacterMesh);
-	goPlayer.GetTransform().SetWorldScale(Vector3::One * playerScale);
-	goPlayer.GetTransform().SetWorldRotation(Rotator(180.f, 0.f, 0.f));
+    GameObject& goPlayer = CreateNewGameObject(GameEngine::PlayerGo);
+    goPlayer.SetMesh(GameEngine::CharacterMesh);
+    goPlayer.GetTransform().SetWorldScale(Vector3::One * playerScale);
+    goPlayer.GetTransform().SetWorldRotation(Rotator(180.f, 0.f, 0.f));
 
-	// Ä³¸¯ÅÍ º»À» Ç¥½ÃÇÒ È­»ìÇ¥
-	Mesh& cm = GetMesh(goPlayer.GetMeshKey());
-	for (const auto& b : cm.GetBones())
-	{
-		if (!b.second.HasParent())
-		{
-			continue;
-		}
-		GameObject& goBoneArrow = CreateNewGameObject(b.second.GetName());
-		goBoneArrow.SetGameObjectType(GameObjectType::Gizmo);
-		goBoneArrow.SetMesh(GameEngine::ArrowMesh);
-		goBoneArrow.SetColor(LinearColor::Red);
-		_BoneGameObjectPtrs.insert({ goBoneArrow.GetName(),&goBoneArrow });
-	}
+    // Ä³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½ï¿½ï¿½ È­ï¿½ï¿½Ç¥
+    Mesh& cm = GetMesh(goPlayer.GetMeshKey());
+    for (const auto& b : cm.GetBones()) {
+        if (!b.second.HasParent()) {
+            continue;
+        }
+        GameObject& goBoneArrow = CreateNewGameObject(b.second.GetName());
+        goBoneArrow.SetGameObjectType(GameObjectType::Gizmo);
+        goBoneArrow.SetMesh(GameEngine::ArrowMesh);
+        goBoneArrow.SetColor(LinearColor::Red);
+        _BoneGameObjectPtrs.insert({goBoneArrow.GetName(), &goBoneArrow});
+    }
 
-	// Ä«¸Þ¶ó ¸¯
-	GameObject& goCameraRig = CreateNewGameObject(GameEngine::CameraRigGo);
-	goCameraRig.GetTransform().SetWorldPosition(Vector3(0.f, 150.f, 0.f));
+    // Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½
+    GameObject& goCameraRig = CreateNewGameObject(GameEngine::CameraRigGo);
+    goCameraRig.GetTransform().SetWorldPosition(Vector3(0.f, 150.f, 0.f));
 
-	// Ä«¸Þ¶ó ¼³Á¤
-	_MainCamera.GetTransform().SetWorldPosition(Vector3(500.f, 800.f, -1000.f));
-	_MainCamera.SetParent(goCameraRig);
-	_MainCamera.SetLookAtRotation(goCameraRig);
-	auto q1 = _MainCamera.GetTransform().GetWorldRotation();
+    // Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ï¿½ï¿½
+    _MainCamera.GetTransform().SetWorldPosition(Vector3(500.f, 800.f, -1000.f));
+    _MainCamera.SetParent(goCameraRig);
+    _MainCamera.SetLookAtRotation(goCameraRig);
+    auto q1 = _MainCamera.GetTransform().GetWorldRotation();
 
-	return true;
+    return true;
 }
 
-Mesh& GameEngine::CreateMesh(const std::size_t& InKey)
-{
-	auto meshPtr = std::make_unique<Mesh>();
-	_Meshes.insert({ InKey, std::move(meshPtr) });
-	return *_Meshes.at(InKey).get();
+Mesh& GameEngine::CreateMesh(const std::size_t& InKey) {
+    auto meshPtr = std::make_unique<Mesh>();
+    _Meshes.insert({InKey, std::move(meshPtr)});
+    return *_Meshes.at(InKey).get();
 }
 
-Texture& GameEngine::CreateTexture(const std::size_t& InKey, const std::string& InTexturePath)
-{
-	auto texturePtr = std::make_unique<Texture>(InTexturePath);
-	_Textures.insert({ InKey, std::move(texturePtr) });
-	return *_Textures.at(InKey).get();
+Texture& GameEngine::CreateTexture(const std::size_t& InKey, const std::string& InTexturePath) {
+    auto texturePtr = std::make_unique<Texture>(InTexturePath);
+    _Textures.insert({InKey, std::move(texturePtr)});
+    return *_Textures.at(InKey).get();
 }
 
-GameObject& GameEngine::CreateNewGameObject(const std::string& InName)
-{
-	std::size_t inHash = std::hash<std::string>()(InName);
-	const auto it = std::lower_bound(SceneBegin(), SceneEnd(), inHash, GameObjectCompare());
+GameObject& GameEngine::CreateNewGameObject(const std::string& InName) {
+    std::size_t inHash = std::hash<std::string>()(InName);
+    const auto it = std::lower_bound(SceneBegin(), SceneEnd(), inHash, GameObjectCompare());
 
-	auto newGameObject = std::make_unique<GameObject>(InName);
-	if (it != _Scene.end())
-	{
-		std::size_t targetHash = (*it)->GetHash();
-		if (targetHash == inHash)
-		{
-			// Áßº¹µÈ Å° ¹ß»ý. ¹«½Ã.
-			assert(false);
-			return GameObject::Invalid;
-		}
-		else if (targetHash < inHash)
-		{
-			_Scene.insert(it + 1, std::move(newGameObject));
-		}
-		else
-		{
-			_Scene.insert(it, std::move(newGameObject));
-		}
-	}
-	else
-	{
-		_Scene.push_back(std::move(newGameObject));
-	}
+    auto newGameObject = std::make_unique<GameObject>(InName);
+    if (it != _Scene.end()) {
+        std::size_t targetHash = (*it)->GetHash();
+        if (targetHash == inHash) {
+            // ï¿½ßºï¿½ï¿½ï¿½ Å° ï¿½ß»ï¿½. ï¿½ï¿½ï¿½ï¿½.
+            assert(false);
+            return GameObject::Invalid;
+        }
+        else if (targetHash < inHash) {
+            _Scene.insert(it + 1, std::move(newGameObject));
+        }
+        else {
+            _Scene.insert(it, std::move(newGameObject));
+        }
+    }
+    else {
+        _Scene.push_back(std::move(newGameObject));
+    }
 
-	return GetGameObject(InName);
+    return GetGameObject(InName);
 }
 
-GameObject& GameEngine::GetGameObject(const std::string& InName)
-{
-	std::size_t targetHash = std::hash<std::string>()(InName);
-	const auto it = std::lower_bound(SceneBegin(), SceneEnd(), targetHash, GameObjectCompare());
+GameObject& GameEngine::GetGameObject(const std::string& InName) {
+    std::size_t targetHash = std::hash<std::string>()(InName);
+    const auto it = std::lower_bound(SceneBegin(), SceneEnd(), targetHash, GameObjectCompare());
 
-	return (it != _Scene.end()) ? *(*it).get() : GameObject::Invalid;
+    return (it != _Scene.end()) ? *(*it).get() : GameObject::Invalid;
 }

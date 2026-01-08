@@ -1,146 +1,144 @@
 #pragma once
 
-enum class GameEngineType : UINT32
-{
-	DD = 0,
-	DDD
+enum class GameEngineType : UINT32 {
+    DD = 0,
+    DDD
 };
 
-enum class DrawMode : UINT32
-{
-	Normal = 0,
-	Wireframe,
-	DepthBuffer
+enum class DrawMode : UINT32 {
+    Normal = 0,
+    Wireframe,
+    DepthBuffer
 };
 
-enum class FillMode : UINT32
-{
-	None = 0x00,
-	Color = 0x01,
-	Texture = 0x02
+enum class FillMode : UINT32 {
+    None = 0x00,
+    Color = 0x01,
+    Texture = 0x02
 };
 
-FORCEINLINE FillMode operator|(FillMode InLhs, FillMode InRhs)
-{
-	return static_cast<FillMode> (
-		static_cast<std::underlying_type<FillMode>::type>(InLhs) |
-		static_cast<std::underlying_type<FillMode>::type>(InRhs)
-	);
+FORCEINLINE FillMode operator|(FillMode InLhs, FillMode InRhs) {
+    return static_cast<FillMode>(
+        static_cast<std::underlying_type<FillMode>::type>(InLhs) |
+        static_cast<std::underlying_type<FillMode>::type>(InRhs)
+    );
 }
 
-FORCEINLINE FillMode& operator|=(FillMode& InLhs, FillMode InRhs)
-{
-	InLhs = InLhs | InRhs;
-	return InLhs;
+FORCEINLINE FillMode& operator|=(FillMode& InLhs, FillMode InRhs) {
+    InLhs = InLhs | InRhs;
+    return InLhs;
 }
 
-FORCEINLINE bool operator&(FillMode InLhs, FillMode InRhs)
-{
-	BYTE rhsValue = static_cast<std::underlying_type<FillMode>::type>(InRhs);
-	return ((static_cast<std::underlying_type<FillMode>::type>(InLhs) & rhsValue) == rhsValue);
+FORCEINLINE bool operator&(FillMode InLhs, FillMode InRhs) {
+    BYTE rhsValue = static_cast<std::underlying_type<FillMode>::type>(InRhs);
+    return ((static_cast<std::underlying_type<FillMode>::type>(InLhs) & rhsValue) == rhsValue);
 }
 
-class SoftRenderer
-{
+class SoftRenderer {
 public:
-	// »ý¼ºÀÚ
-	SoftRenderer(GameEngineType InGameEngineType, RendererInterface* InRSI);
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    SoftRenderer(GameEngineType InGameEngineType, RendererInterface* InRSI);
 
-	// À©µµ¿ì ÀÌº¥Æ® Ã³¸®
-	void OnTick();
-	void OnResize(const ScreenPoint& InNewScreenSize);
-	void OnShutdown();
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìºï¿½Æ® Ã³ï¿½ï¿½
+    void OnTick();
+    void OnResize(const ScreenPoint& InNewScreenSize);
+    void OnShutdown();
 
-	// ÇÁ·Î±×·¥ ±âº» Á¤º¸
-	SystemInputManager& GetSystemInput() { return _SystemInputManager; }
-	const ScreenPoint& GetScreenSize() { return _ScreenSize; }
-	float GetFrameFPS() const { return _FrameFPS; }
+    // ï¿½ï¿½ï¿½Î±×·ï¿½ ï¿½âº» ï¿½ï¿½ï¿½ï¿½
+    SystemInputManager& GetSystemInput() { return _SystemInputManager; }
+    const ScreenPoint& GetScreenSize() { return _ScreenSize; }
+    float GetFrameFPS() const { return _FrameFPS; }
 	FORCEINLINE float GetElapsedTime() const { return _ElapsedTime; }
 
-	// ¼º´É ÃøÁ¤
-	std::function<float()> _PerformanceInitFunc;
-	std::function<INT64()> _PerformanceMeasureFunc;
-	std::function<void(InputManager&)> _InputBindingFunc;
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    std::function<float()> _PerformanceInitFunc;
+    std::function<INT64()> _PerformanceMeasureFunc;
+    std::function<void(InputManager &)> _InputBindingFunc;
 
-	// °ÔÀÓ ¿£Áø ·¹ÆÛ·±½º 
-	FORCEINLINE EngineInterface& GetGameEngine() { return (_GameEngineType == GameEngineType::DD) ? static_cast<EngineInterface&>(_GameEngine2) : static_cast<EngineInterface&>(_GameEngine3); }
-	FORCEINLINE DD::GameEngine& Get2DGameEngine() { return _GameEngine2; }
-	FORCEINLINE DDD::GameEngine& Get3DGameEngine() { return _GameEngine3; }
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û·ï¿½ï¿½ï¿½ 
+	FORCEINLINE EngineInterface& GetGameEngine() {
+        return (_GameEngineType == GameEngineType::DD)
+                   ? static_cast<EngineInterface&>(_GameEngine2)
+                   : static_cast<EngineInterface&>(_GameEngine3);
+    }
+
+    FORCEINLINE DD::GameEngine& Get2DGameEngine() { return _GameEngine2; }
+    FORCEINLINE DDD::GameEngine& Get3DGameEngine() { return _GameEngine3; }
 
 private:
-	// °ÔÀÓ ¿£Áø ¼³Á¤
-	void SetDefaultGameEngine(GameEngineType InGameEngineType);
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    void SetDefaultGameEngine(GameEngineType InGameEngineType);
 
-	// ±âº» ·çÇÁ ÇÔ¼ö
-	void PreUpdate();
-	void PostUpdate();
+    // ï¿½âº» ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
+    void PreUpdate();
+    void PostUpdate();
 
-	// ·»´õ·¯ ·¹ÆÛ·±½º
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û·ï¿½ï¿½ï¿½
 	FORCEINLINE RendererInterface& GetRenderer() { return *_RSIPtr.get(); }
 	FORCEINLINE void SetBackgroundColor(const LinearColor& InLinearColor) { _BackgroundColor = InLinearColor; }
 	FORCEINLINE void SetWireframeColor(const LinearColor& InLinearColor) { _WireframeColor = InLinearColor; }
 
-	// 2D ±×·¡ÇÈ½º ±¸Çö
-	void Update2D(float InDeltaSeconds);
-	void Render2D();
-	void DrawGrid2D();
-	void DrawMesh2D(const class DD::Mesh& InMesh, const Matrix3x3& InMatrix, const LinearColor& InColor);
-	void DrawTriangle2D(std::vector<DD::Vertex2D>& InVertices, const LinearColor& InColor, FillMode InFillMode);
+    // 2D ï¿½×·ï¿½ï¿½È½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    void Update2D(float InDeltaSeconds);
+    void Render2D();
+    void DrawGrid2D();
+    void DrawMesh2D(const class DD::Mesh& InMesh, const Matrix3x3& InMatrix, const LinearColor& InColor);
+    void DrawTriangle2D(std::vector<DD::Vertex2D>& InVertices, const LinearColor& InColor, FillMode InFillMode);
 
-	int _Grid2DUnit = 10;
+    int _Grid2DUnit = 10;
 
-	// 3D ±×·¡ÇÈ½º ±¸Çö
-	void DrawGizmo3D();
-	void Update3D(float InDeltaSeconds);
-	void LateUpdate3D(float InDeltaSeconds);
-	void Render3D();
+    // 3D ï¿½×·ï¿½ï¿½È½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    void DrawGizmo3D();
+    void Update3D(float InDeltaSeconds);
+    void LateUpdate3D(float InDeltaSeconds);
+    void Render3D();
 
-	void DrawMesh3D(const class DDD::Mesh& InMesh, const Matrix4x4& InMatrix, const LinearColor& InColor);
-	void DrawTriangle3D(std::vector<DDD::Vertex3D>& InVertices, const LinearColor& InColor, FillMode InFillMode);
-	bool IsDepthBufferDrawing() const { return _CurrentDrawMode == DrawMode::DepthBuffer; }
-	bool IsWireframeDrawing() const { return _CurrentDrawMode == DrawMode::Wireframe; }
-	DrawMode GetDrawMode() const { return _CurrentDrawMode; }
-	void SetDrawMode(DrawMode InDrawMode) { _CurrentDrawMode = InDrawMode; }
+    void DrawMesh3D(const class DDD::Mesh& InMesh, const Matrix4x4& InMatrix, const LinearColor& InColor);
+    void DrawTriangle3D(std::vector<DDD::Vertex3D>& InVertices, const LinearColor& InColor, FillMode InFillMode);
+    bool IsDepthBufferDrawing() const { return _CurrentDrawMode == DrawMode::DepthBuffer; }
+    bool IsWireframeDrawing() const { return _CurrentDrawMode == DrawMode::Wireframe; }
+    DrawMode GetDrawMode() const { return _CurrentDrawMode; }
+    void SetDrawMode(DrawMode InDrawMode) { _CurrentDrawMode = InDrawMode; }
 
-	float _GizmoUnitLength = 50.f;
-	Vector2 _GizmoPositionOffset = Vector2(-320.f, -250.f);
-	DrawMode _CurrentDrawMode = DrawMode::Normal;
+    float _GizmoUnitLength = 50.f;
+    Vector2 _GizmoPositionOffset = Vector2(-320.f, -250.f);
+    DrawMode _CurrentDrawMode = DrawMode::Normal;
 
 private:
-	// ÃÊ±âÈ­ Á¡°Ë º¯¼ö
-	bool _PerformanceCheckInitialized = false;
-	bool _RendererInitialized = false;
-	bool _GameEngineInitialized = false;
-	bool _TickEnabled = false;
-	bool _AllInitialized = false;
+    // ï¿½Ê±ï¿½È­ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    bool _PerformanceCheckInitialized = false;
+    bool _RendererInitialized = false;
+    bool _GameEngineInitialized = false;
+    bool _TickEnabled = false;
+    bool _AllInitialized = false;
 
-	// È­¸é Å©±â
-	ScreenPoint _ScreenSize;
+    // È­ï¿½ï¿½ Å©ï¿½ï¿½
+    ScreenPoint _ScreenSize;
 
-	// ¹è°æ »ö»ó
-	LinearColor _BackgroundColor = LinearColor::WhiteSmoke;
+    // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    LinearColor _BackgroundColor = LinearColor::WhiteSmoke;
 
-	// ¿ÍÀÌ¾îÇÁ·¹ÀÓ »ö»ó
-	LinearColor _WireframeColor = LinearColor::DimGray;
+    // ï¿½ï¿½ï¿½Ì¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    LinearColor _WireframeColor = LinearColor::DimGray;
 
-	// ¼º´É ÃøÁ¤
-	long long _StartTimeStamp = 0;
-	long long _FrameTimeStamp = 0;
-	long _FrameCount = 0;
-	float _CyclesPerMilliSeconds = 0.f;
-	float _FrameTime = 0.f;
-	float _ElapsedTime = 0.f;
-	float _AverageFPS = 0.f;
-	float _FrameFPS = 0.f;
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    long long _StartTimeStamp = 0;
+    long long _FrameTimeStamp = 0;
+    long _FrameCount = 0;
+    float _CyclesPerMilliSeconds = 0.f;
+    float _FrameTime = 0.f;
+    float _ElapsedTime = 0.f;
+    float _AverageFPS = 0.f;
+    float _FrameFPS = 0.f;
 
-	// ·»´õ·¯ ÀÎÅÍÆäÀÌ½º
-	std::unique_ptr<RendererInterface> _RSIPtr;
-	GameEngineType _GameEngineType = GameEngineType::DD;
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì½ï¿½
+    std::unique_ptr<RendererInterface> _RSIPtr;
+    GameEngineType _GameEngineType = GameEngineType::DD;
 
-	// °ÔÀÓ ¿£Áø
-	DD::GameEngine _GameEngine2;
-	DDD::GameEngine _GameEngine3;
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    DD::GameEngine _GameEngine2;
+    DDD::GameEngine _GameEngine3;
 
-	// ÀÀ¿ë ÇÁ·Î±×·¥ ÀÔ·Â
-	SystemInputManager _SystemInputManager;
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Î±×·ï¿½ ï¿½Ô·ï¿½
+    SystemInputManager _SystemInputManager;
 };
