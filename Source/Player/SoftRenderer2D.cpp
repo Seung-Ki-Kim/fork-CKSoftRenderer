@@ -41,6 +41,7 @@ void SoftRenderer::DrawGrid2D() {
 
 // 실습을 위한 변수
 Vector2 deltaPosition;
+Vector2 currentPosition(100.f, 100.f);
 
 // 게임 로직
 void SoftRenderer::Update2D(float InDeltaSeconds) {
@@ -48,8 +49,11 @@ void SoftRenderer::Update2D(float InDeltaSeconds) {
 	const InputManager& input = g.GetInputManager();
 
 	static float moveSpeed = 100.f;
-	deltaPosition = Vector2(input.GetAxis(InputAxis::XAxis), input.GetAxis(InputAxis::YAxis)) * moveSpeed *
-		InDeltaSeconds;
+
+	Vector2 inputVector = Vector2(input.GetAxis(InputAxis::XAxis), input.GetAxis(InputAxis::YAxis)).Normalize();
+	Vector2 deltaPosition = inputVector * moveSpeed * InDeltaSeconds;
+
+	currentPosition += deltaPosition;
 }
 
 // 렌더링 로직
@@ -60,24 +64,30 @@ void SoftRenderer::Render2D() {
 	// 격자 그리기
 	DrawGrid2D();
 
-	static Vector2 centerPoint(100.f, 100.f);
-	centerPoint += deltaPosition;
+	// 변수 선언
+	static float radius = 50.f;
+	static std::vector<Vector2> circles;
 
-	std::array<Vector2, 5> points = {
-		centerPoint,
-		centerPoint - Vector2(1.f, 0.f),
-		centerPoint + Vector2(1.f, 0.f),
-		centerPoint - Vector2(0.f, 1.f),
-		centerPoint + Vector2(0.f, 1.f)
-	};
+	// 원 그리기
+	if (circles.empty()) {
+		for (float x = -radius; x <= radius; ++x) {
+			for (float y = -radius; y <= radius; ++y) {
+				Vector2 pointToTest = Vector2(x, y);
+				float squaredLength = pointToTest.SizeSquared();
 
-	for (const auto& p : points) {
-		r.DrawPoint(p, LinearColor::Black);
+				if (squaredLength <= radius * radius) {
+					circles.push_back(pointToTest);
+				}
+			}
+		}
 	}
 
-	ScreenPoint screenPoint = ScreenPoint::ToScreenCoordinate(_ScreenSize, centerPoint);
-	r.PushStatisticText("Cartesian : " + centerPoint.ToString());
-	r.PushStatisticText("Screen : (" + std::to_string(screenPoint.X) + "," + std::to_string(screenPoint.Y) + ")");
+	for (auto const& v : circles) {
+		r.DrawPoint(v + currentPosition, LinearColor::Red);
+	}
+
+	// 좌표 출력
+	r.PushStatisticText("Coordinate : " + currentPosition.ToString());
 }
 
 void SoftRenderer::DrawMesh2D(const class DD::Mesh& InMesh, const Matrix3x3& InMatrix, const LinearColor& InColor) {
