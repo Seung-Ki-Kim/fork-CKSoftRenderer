@@ -1,90 +1,87 @@
 #pragma once
 
-namespace CK
-{
-namespace DDD
-{
+namespace CK {
+    namespace DDD {
+        class GameEngine : public EngineInterface {
+        public:
+            GameEngine() = default;
 
-class GameEngine : public EngineInterface
-{
-public:
-	GameEngine() = default;
+        public:
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì½ï¿½
+            virtual bool Init() override;
+            virtual bool IsInitialized() override { return _IsInitialized; }
+            virtual void OnScreenResize(const ScreenPoint& InScreenSize) override;
+            virtual InputManager& GetInputManager() override { return _InputManager; }
 
-public:
-	// °ø¿ë ÀÎÅÍÆäÀÌ½º
-	virtual bool Init() override;
-	virtual bool IsInitialized() override { return _IsInitialized; }
-	virtual void OnScreenResize(const ScreenPoint& InScreenSize) override;
-	virtual InputManager& GetInputManager() override { return _InputManager; }
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ëµµ 
+            const InputManager& GetInputManager() const { return _InputManager; }
 
-	// °ÔÀÓ ·ÎÁ÷ ¿ëµµ 
-	const InputManager& GetInputManager() const { return _InputManager; }
+            // ï¿½ï¿½ï¿½Ò½ï¿½ ï¿½ï¿½ï¿½ï¿½
+            Mesh& CreateMesh(const std::size_t& InKey);
+            Texture& CreateTexture(const std::size_t& InKey, const std::string& InTexturePath);
 
-	// ¸®¼Ò½º °ü¸®
-	Mesh& CreateMesh(const std::size_t& InKey);
-	Texture& CreateTexture(const std::size_t& InKey, const std::string& InTexturePath);
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
+            const std::vector<std::unique_ptr<GameObject>>& GetScene() const { return _Scene; }
+            std::vector<std::unique_ptr<GameObject>>::const_iterator SceneBegin() const { return _Scene.begin(); }
+            std::vector<std::unique_ptr<GameObject>>::const_iterator SceneEnd() const { return _Scene.end(); }
+            GameObject& CreateNewGameObject(const std::string& InName);
+            GameObject& GetGameObject(const std::string& InName);
 
-	// °ÔÀÓ ¿ÀºêÁ§Æ®
-	const std::vector<std::unique_ptr<GameObject>>& GetScene() const { return _Scene; }
-	std::vector< std::unique_ptr<GameObject>>::const_iterator SceneBegin() const { return _Scene.begin(); }
-	std::vector< std::unique_ptr<GameObject>>::const_iterator SceneEnd() const { return _Scene.end(); }
-	GameObject& CreateNewGameObject(const std::string& InName);
-	GameObject& GetGameObject(const std::string& InName);
+            // ï¿½Þ½ï¿½
+            Mesh& GetMesh(const std::size_t& InMeshKey) { return *_Meshes.at(InMeshKey).get(); }
+            const Mesh& GetMesh(const std::size_t& InMeshKey) const { return *_Meshes.at(InMeshKey).get(); }
 
-	// ¸Þ½Ã
-	Mesh& GetMesh(const std::size_t& InMeshKey) { return *_Meshes.at(InMeshKey).get(); }
-	const Mesh& GetMesh(const std::size_t& InMeshKey) const { return *_Meshes.at(InMeshKey).get(); }
-
-	// Ä«¸Þ¶ó 
+            // Ä«ï¿½Þ¶ï¿½ 
 	FORCEINLINE CameraObject& GetMainCamera() { return _MainCamera; }
 	FORCEINLINE const CameraObject& GetMainCamera() const { return _MainCamera; }
 
-	// ¸ÞÀÎ ÅØ½ºÃÄ
-	FORCEINLINE const Texture& GetTexture(const std::size_t& InTextureKey) const { return *_Textures.at(InTextureKey).get(); }
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½ï¿½ï¿½
+	FORCEINLINE const Texture& GetTexture(const std::size_t& InTextureKey) const {
+                return *_Textures.at(InTextureKey).get();
+            }
 
-	// º»À» ±×¸®±â À§ÇÑ ¸ñ·Ï
-	std::unordered_map<std::string, GameObject*> GetBoneObjectPtrs() { return _BoneGameObjectPtrs; }
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+            std::unordered_map<std::string, GameObject*> GetBoneObjectPtrs() { return _BoneGameObjectPtrs; }
 
-private:
-	bool LoadResources();
-	bool LoadScene();
+        private:
+            bool LoadResources();
+            bool LoadScene();
 
-public: // ÁÖ¿ä Å° °ª
-	// º»
-	static const std::string RootBone;
-	static const std::string PelvisBone;
-	static const std::string SpineBone;
-	static const std::string LeftArmBone;
-	static const std::string RightArmBone;
-	static const std::string NeckBone;
-	static const std::string LeftLegBone;
-	static const std::string RightLegBone;
+        public: // ï¿½Ö¿ï¿½ Å° ï¿½ï¿½
+            // ï¿½ï¿½
+            static const std::string RootBone;
+            static const std::string PelvisBone;
+            static const std::string SpineBone;
+            static const std::string LeftArmBone;
+            static const std::string RightArmBone;
+            static const std::string NeckBone;
+            static const std::string LeftLegBone;
+            static const std::string RightLegBone;
 
-	// ¸Þ½Ã
-	static const std::size_t CharacterMesh;
-	static const std::size_t ArrowMesh;
-	static const std::size_t PlaneMesh;
+            // ï¿½Þ½ï¿½
+            static const std::size_t CharacterMesh;
+            static const std::size_t ArrowMesh;
+            static const std::size_t PlaneMesh;
 
-	// °ÔÀÓ ¿ÀºêÁ§Æ®
-	static const std::string PlayerGo;
-	static const std::string CameraRigGo;
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
+            static const std::string PlayerGo;
+            static const std::string CameraRigGo;
 
-	// ÅØ½ºÃÄ
-	static const std::size_t DiffuseTexture;
-	static const std::string SteveTexturePath;
+            // ï¿½Ø½ï¿½ï¿½ï¿½
+            static const std::size_t DiffuseTexture;
+            static const std::string SteveTexturePath;
 
-private:
-	bool _IsInitialized = false;
+        private:
+            bool _IsInitialized = false;
 
-	ScreenPoint _ScreenSize;
-	InputManager _InputManager;
-	CameraObject _MainCamera;
+            ScreenPoint _ScreenSize;
+            InputManager _InputManager;
+            CameraObject _MainCamera;
 
-	std::vector<std::unique_ptr<GameObject>> _Scene;
-	std::unordered_map<std::size_t, std::unique_ptr<Mesh>> _Meshes;
-	std::unordered_map<std::size_t, std::unique_ptr<Texture>> _Textures;
-	std::unordered_map<std::string, GameObject*> _BoneGameObjectPtrs;
-};
-
-}
+            std::vector<std::unique_ptr<GameObject>> _Scene;
+            std::unordered_map<std::size_t, std::unique_ptr<Mesh>> _Meshes;
+            std::unordered_map<std::size_t, std::unique_ptr<Texture>> _Textures;
+            std::unordered_map<std::string, GameObject*> _BoneGameObjectPtrs;
+        };
+    }
 }

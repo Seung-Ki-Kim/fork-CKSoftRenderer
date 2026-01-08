@@ -15,4 +15,3 @@
 #include "SystemInputManager.h"
 
 using namespace CK;
-

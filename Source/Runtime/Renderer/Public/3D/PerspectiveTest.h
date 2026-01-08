@@ -1,193 +1,176 @@
-
 #pragma once
 
-namespace CK
-{
-namespace DDD
-{
+namespace CK {
+    namespace DDD {
+        struct PerspectiveTest {
+            std::function<bool(const Vertex3D & InVertex)> ClippingTestFunc;
+            std::function<Vertex3D(const Vertex3D & InStartVertex, const Vertex3D & InEndVertex)> GetEdgeVertexFunc;
+            std::array<bool, 3> TestResult;
 
-struct PerspectiveTest
-{
-	std::function<bool(const Vertex3D& InVertex)> ClippingTestFunc;
-	std::function<Vertex3D(const Vertex3D& InStartVertex, const Vertex3D& InEndVertex)> GetEdgeVertexFunc;
-	std::array<bool, 3> TestResult;
+            void ClipTriangles(std::vector<Vertex3D>& InTriangleVertices) {
+                size_t nTriangles = InTriangleVertices.size() / 3;
+                for (size_t ti = 0; ti < nTriangles; ++ti) {
+                    size_t si = ti * 3;
+                    size_t testNotPassedCount = 0;
 
-	void ClipTriangles(std::vector<Vertex3D>& InTriangleVertices)
-	{
-		size_t nTriangles = InTriangleVertices.size() / 3;
-		for (size_t ti = 0; ti < nTriangles; ++ti)
-		{
-			size_t si = ti * 3;
-			size_t testNotPassedCount = 0;
+                    std::vector<Vertex3D> sub(InTriangleVertices.begin() + si, InTriangleVertices.begin() + si + 3);
+                    // ï¿½×½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+                    for (size_t ix = 0; ix < 3; ++ix) {
+                        bool testResult = ClippingTestFunc(sub[ix]);
+                        TestResult[ix] = testResult;
+                        if (testResult) testNotPassedCount++;
+                    }
 
-			std::vector<Vertex3D> sub(InTriangleVertices.begin() + si, InTriangleVertices.begin() + si + 3);
-			// Å×½ºÆ®¿¡ ½ÇÆÐÇÑ Á¡ Á¤º¸ ¾ò±â
-			for (size_t ix = 0; ix < 3; ++ix)
-			{
-				bool testResult = ClippingTestFunc(sub[ix]);
-				TestResult[ix] = testResult;
-				if (testResult) testNotPassedCount++;
-			}
+                    GetNewVertices(sub, testNotPassedCount);
 
-			GetNewVertices(sub, testNotPassedCount);
+                    if (testNotPassedCount == 0) {
+                        continue;
+                    }
+                    else if (testNotPassedCount == 1) // ï¿½ï°¢ï¿½ï¿½ ï¿½ß°ï¿½
+                    {
+                        InTriangleVertices[si] = sub[0];
+                        InTriangleVertices[si + 1] = sub[1];
+                        InTriangleVertices[si + 2] = sub[2];
+                        InTriangleVertices.push_back(sub[3]);
+                        InTriangleVertices.push_back(sub[4]);
+                        InTriangleVertices.push_back(sub[5]);
+                    }
+                    else if (testNotPassedCount == 2) // ï¿½ï°¢ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+                    {
+                        InTriangleVertices[si] = sub[0];
+                        InTriangleVertices[si + 1] = sub[1];
+                        InTriangleVertices[si + 2] = sub[2];
+                    }
+                    else // ï¿½ï°¢ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ï¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+                    {
+                        InTriangleVertices.erase(InTriangleVertices.begin() + si, InTriangleVertices.begin() + si + 3);
+                        nTriangles--;
+                        ti--;
+                    }
+                }
+            }
 
-			if (testNotPassedCount == 0)
-			{
-				continue;
-			}
-			else if (testNotPassedCount == 1)  // »ï°¢Çü Ãß°¡
-			{
-				InTriangleVertices[si] = sub[0];
-				InTriangleVertices[si + 1] = sub[1];
-				InTriangleVertices[si + 2] = sub[2];
-				InTriangleVertices.push_back(sub[3]);
-				InTriangleVertices.push_back(sub[4]);
-				InTriangleVertices.push_back(sub[5]);
-			}
-			else if (testNotPassedCount == 2) // »ï°¢Çü Á¤º¸ º¯°æ
-			{
-				InTriangleVertices[si] = sub[0];
-				InTriangleVertices[si + 1] = sub[1];
-				InTriangleVertices[si + 2] = sub[2];
-			}
-			else // »ï°¢ÇüÀ» ¸ñ·Ï¿¡¼­ Á¦°Å
-			{
-				InTriangleVertices.erase(InTriangleVertices.begin() + si, InTriangleVertices.begin() + si + 3);
-				nTriangles--;
-				ti--;
-			}
-		}
-	}
+            // ï¿½Ð½ï¿½ï¿½Ï¸ï¿½ false, ï¿½ï¿½ï¿½ï¿½Ò°Å¸ï¿½ true
+            bool GetNewVertices(std::vector<Vertex3D>& InVertices, size_t NonPassCount) {
+                if (NonPassCount == 0) // ï¿½×´ï¿½ï¿½ ï¿½ï¿½ï¿½
+                {
+                    return true;
+                }
+                else if (NonPassCount == 1) {
+                    // Edgeï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½ï¿½Ç°ï¿½ ï¿½ï°¢ï¿½ï¿½ï¿½ï¿½ 2ï¿½ï¿½ï¿½ï¿½ ï¿½É°ï¿½ï¿½ï¿½
+                    BYTE index = 0; // ï¿½×½ï¿½Æ®ï¿½ï¿½ ï¿½É¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½
+                    if (!TestResult[0]) {
+                        index = TestResult[1] ? 1 : 2;
+                    }
+                    Vertex3D v1 = InVertices[(index + 1) % 3];
+                    Vertex3D v2 = InVertices[(index + 2) % 3];
+                    Vertex3D clipped1 = GetEdgeVertexFunc(InVertices[index], v1);
+                    Vertex3D clipped2 = GetEdgeVertexFunc(InVertices[index], v2);
+                    InVertices[0] = clipped1;
+                    InVertices[1] = v1;
+                    InVertices[2] = v2;
+                    InVertices.push_back(clipped1);
+                    InVertices.push_back(v2);
+                    InVertices.push_back(clipped2);
+                    return true;
+                }
+                else if (NonPassCount == 2) {
+                    // Edgeï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ç°ï¿½ ï¿½ï°¢ï¿½ï¿½ï¿½ï¿½ ï¿½×´ï¿½ï¿½.
+                    BYTE index = 0; // ï¿½×½ï¿½Æ®ï¿½ï¿½ ï¿½É¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½
+                    if (TestResult[0]) {
+                        index = !TestResult[1] ? 1 : 2;
+                    }
 
-	// ÆÐ½ºÇÏ¸é false, »ç¿ëÇÒ°Å¸é true
-	bool GetNewVertices(std::vector<Vertex3D>& InVertices, size_t NonPassCount)
-	{
-		if (NonPassCount == 0) // ±×´ë·Î Åë°ú
-		{
-			return true;
-		}
-		else if (NonPassCount == 1)
-		{
-			// Edge¸¦ ¸¸µç ÈÄ Å¬¸®ÇÎ ÁøÇà. Á¡ÀÌ µÎ °³°¡ Ãß°¡µÇ°í »ï°¢ÇüÀÌ 2°³·Î ÂÉ°³Áü
-			BYTE index = 0; // Å×½ºÆ®¿¡ °É¸° Á¡ÀÇ ÀÎµ¦½º
-			if (!TestResult[0])
-			{
-				index = TestResult[1] ? 1 : 2;
-			}
-			Vertex3D v1 = InVertices[(index + 1) % 3];
-			Vertex3D v2 = InVertices[(index + 2) % 3];
-			Vertex3D clipped1 = GetEdgeVertexFunc(InVertices[index], v1);
-			Vertex3D clipped2 = GetEdgeVertexFunc(InVertices[index], v2);
-			InVertices[0] = clipped1;
-			InVertices[1] = v1;
-			InVertices[2] = v2;
-			InVertices.push_back(clipped1);
-			InVertices.push_back(v2);
-			InVertices.push_back(clipped2);
-			return true;
-		}
-		else if (NonPassCount == 2)
-		{
-			// Edge¸¦ ¸¸µç ÈÄ Å¬¸®ÇÎ ÁøÇà. Á¡ÀÌ µÎ °³°¡ º¯°æµÇ°í »ï°¢ÇüÀº ±×´ë·Î.
-			BYTE index = 0;  // Å×½ºÆ®¿¡ °É¸®Áö ¾ÊÀº Á¡ÀÇ ÀÎµ¦½º
-			if (TestResult[0])
-			{
-				index = !TestResult[1] ? 1 : 2;
-			}
+                    Vertex3D v1 = InVertices[(index + 1) % 3];
+                    Vertex3D v2 = InVertices[(index + 2) % 3];
+                    Vertex3D clipped1 = GetEdgeVertexFunc(InVertices[index], v1);
+                    Vertex3D clipped2 = GetEdgeVertexFunc(InVertices[index], v2);
+                    InVertices[0] = InVertices[index];
+                    InVertices[1] = clipped1;
+                    InVertices[2] = clipped2;
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+        };
 
-			Vertex3D v1 = InVertices[(index + 1) % 3];
-			Vertex3D v2 = InVertices[(index + 2) % 3];
-			Vertex3D clipped1 = GetEdgeVertexFunc(InVertices[index], v1);
-			Vertex3D clipped2 = GetEdgeVertexFunc(InVertices[index], v2);
-			InVertices[0] = InVertices[index];
-			InVertices[1] = clipped1;
-			InVertices[2] = clipped2;
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-};
+        static auto TestFuncW0 = [](const Vertex3D& InVertex) {
+            return InVertex.Position.W < 0.f;
+        };
 
-static auto TestFuncW0 = [](const Vertex3D& InVertex) {
-	return InVertex.Position.W < 0.f;
-};
+        static auto EdgeFuncW0 = [](const Vertex3D& InStartVertex, const Vertex3D& InEndVertex) {
+            float p1 = InStartVertex.Position.W;
+            float p2 = InEndVertex.Position.W;
+            float t = p1 / (p1 - p2);
+            return InStartVertex * (1.f - t) + InEndVertex * t;
+        };
 
-static auto EdgeFuncW0 = [](const Vertex3D& InStartVertex, const Vertex3D& InEndVertex) {
-	float p1 = InStartVertex.Position.W;
-	float p2 = InEndVertex.Position.W;
-	float t = p1 / (p1 - p2);
-	return InStartVertex * (1.f - t) + InEndVertex * t;
-};
+        static auto TestFuncNY = [](const Vertex3D& InVertex) {
+            return InVertex.Position.Y < -InVertex.Position.W;
+        };
 
-static auto TestFuncNY = [](const Vertex3D& InVertex) {
-	return InVertex.Position.Y < -InVertex.Position.W;
-};
+        static auto EdgeFuncNY = [](const Vertex3D& InStartVertex, const Vertex3D& InEndVertex) {
+            float p1 = InStartVertex.Position.W + InStartVertex.Position.Y;
+            float p2 = InEndVertex.Position.W + InEndVertex.Position.Y;
+            float t = p1 / (p1 - p2);
+            return InStartVertex * (1.f - t) + InEndVertex * t;
+        };
 
-static auto EdgeFuncNY = [](const Vertex3D& InStartVertex, const Vertex3D& InEndVertex) {
-	float p1 = InStartVertex.Position.W + InStartVertex.Position.Y;
-	float p2 = InEndVertex.Position.W + InEndVertex.Position.Y;
-	float t = p1 / (p1 - p2);
-	return InStartVertex * (1.f - t) + InEndVertex * t;
-};
+        static auto TestFuncPY = [](const Vertex3D& InVertex) {
+            return InVertex.Position.Y > InVertex.Position.W;
+        };
 
-static auto TestFuncPY = [](const Vertex3D& InVertex) {
-	return InVertex.Position.Y > InVertex.Position.W;
-};
+        static auto EdgeFuncPY = [](const Vertex3D& InStartVertex, const Vertex3D& InEndVertex) {
+            float p1 = InStartVertex.Position.W - InStartVertex.Position.Y;
+            float p2 = InEndVertex.Position.W - InEndVertex.Position.Y;
+            float t = p1 / (p1 - p2);
+            return InStartVertex * (1.f - t) + InEndVertex * t;
+        };
 
-static auto EdgeFuncPY = [](const Vertex3D& InStartVertex, const Vertex3D& InEndVertex) {
-	float p1 = InStartVertex.Position.W - InStartVertex.Position.Y;
-	float p2 = InEndVertex.Position.W - InEndVertex.Position.Y;
-	float t = p1 / (p1 - p2);
-	return InStartVertex * (1.f - t) + InEndVertex * t;
-};
+        static auto TestFuncNX = [](const Vertex3D& InVertex) {
+            return InVertex.Position.X < -InVertex.Position.W;
+        };
 
-static auto TestFuncNX = [](const Vertex3D& InVertex) {
-	return InVertex.Position.X < -InVertex.Position.W;
-};
+        static auto EdgeFuncNX = [](const Vertex3D& InStartVertex, const Vertex3D& InEndVertex) {
+            float p1 = InStartVertex.Position.W + InStartVertex.Position.X;
+            float p2 = InEndVertex.Position.W + InEndVertex.Position.X;
+            float t = p1 / (p1 - p2);
+            return InStartVertex * (1.f - t) + InEndVertex * t;
+        };
 
-static auto EdgeFuncNX = [](const Vertex3D& InStartVertex, const Vertex3D& InEndVertex) {
-	float p1 = InStartVertex.Position.W + InStartVertex.Position.X;
-	float p2 = InEndVertex.Position.W + InEndVertex.Position.X;
-	float t = p1 / (p1 - p2);
-	return InStartVertex * (1.f - t) + InEndVertex * t;
-};
+        static auto TestFuncPX = [](const Vertex3D& InVertex) {
+            return InVertex.Position.X > InVertex.Position.W;
+        };
 
-static auto TestFuncPX = [](const Vertex3D& InVertex) {
-	return InVertex.Position.X > InVertex.Position.W;
-};
+        static auto EdgeFuncPX = [](const Vertex3D& InStartVertex, const Vertex3D& InEndVertex) {
+            float p1 = InStartVertex.Position.W - InStartVertex.Position.X;
+            float p2 = InEndVertex.Position.W - InEndVertex.Position.X;
+            float t = p1 / (p1 - p2);
+            return InStartVertex * (1.f - t) + InEndVertex * t;
+        };
 
-static auto EdgeFuncPX = [](const Vertex3D& InStartVertex, const Vertex3D& InEndVertex) {
-	float p1 = InStartVertex.Position.W - InStartVertex.Position.X;
-	float p2 = InEndVertex.Position.W - InEndVertex.Position.X;
-	float t = p1 / (p1 - p2);
-	return InStartVertex * (1.f - t) + InEndVertex * t;
-};
+        static auto TestFuncFar = [](const Vertex3D& InVertex) {
+            return InVertex.Position.Z > InVertex.Position.W;
+        };
 
-static auto TestFuncFar = [](const Vertex3D& InVertex) {
-	return InVertex.Position.Z > InVertex.Position.W;
-};
+        static auto EdgeFuncFar = [](const Vertex3D& InStartVertex, const Vertex3D& InEndVertex) {
+            float p1 = InStartVertex.Position.W - InStartVertex.Position.Z;
+            float p2 = InEndVertex.Position.W - InEndVertex.Position.Z;
+            float t = p1 / (p1 - p2);
+            return InStartVertex * (1.f - t) + InEndVertex * t;
+        };
 
-static auto EdgeFuncFar = [](const Vertex3D& InStartVertex, const Vertex3D& InEndVertex) {
-	float p1 = InStartVertex.Position.W - InStartVertex.Position.Z;
-	float p2 = InEndVertex.Position.W - InEndVertex.Position.Z;
-	float t = p1 / (p1 - p2);
-	return InStartVertex * (1.f - t) + InEndVertex * t;
-};
+        static auto TestFuncNear = [](const Vertex3D& InVertex) {
+            return InVertex.Position.Z < -InVertex.Position.W;
+        };
 
-static auto TestFuncNear = [](const Vertex3D& InVertex) {
-	return InVertex.Position.Z < -InVertex.Position.W;
-};
-
-static auto EdgeFuncNear = [](const Vertex3D& InStartVertex, const Vertex3D& InEndVertex) {
-	float p1 = InStartVertex.Position.W + InStartVertex.Position.Z;
-	float p2 = InEndVertex.Position.W + InEndVertex.Position.Z;
-	float t = p1 / (p1 - p2);
-	return InStartVertex * (1.f - t) + InEndVertex * t;
-};
-
-
-}
+        static auto EdgeFuncNear = [](const Vertex3D& InStartVertex, const Vertex3D& InEndVertex) {
+            float p1 = InStartVertex.Position.W + InStartVertex.Position.Z;
+            float p2 = InEndVertex.Position.W + InEndVertex.Position.Z;
+            float t = p1 / (p1 - p2);
+            return InStartVertex * (1.f - t) + InEndVertex * t;
+        };
+    }
 }

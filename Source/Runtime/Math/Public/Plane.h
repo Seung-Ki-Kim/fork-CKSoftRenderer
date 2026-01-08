@@ -1,42 +1,39 @@
 #pragma once
 
-namespace CK
-{
+namespace CK {
+    struct Plane {
+    public:
+        FORCEINLINE constexpr Plane() = default;
 
-struct Plane
-{
-public:
-	FORCEINLINE constexpr Plane() = default;
-	FORCEINLINE explicit constexpr Plane(const Vector3& InNormal, float InDistance) : Normal(InNormal), D(InDistance) { assert(InNormal.SizeSquared() == 1); } // Á¤±ÔÈ­µÈ ¿ä¼Ò·Î Æò¸é »ý¼ºÇÏ±â
-	FORCEINLINE explicit constexpr Plane(const Vector3& InNormal, Vector3 InPlanePoint); // Á¤±ÔÈ­µÈ ¿ä¼Ò·Î Æò¸é »ý¼ºÇÏ±â
-	explicit Plane(const Vector3& InPoint1, const Vector3& InPoint2, const Vector3& InPoint3);
-	explicit Plane(const Vector4& InVector4); // Á¤±ÔÈ­¾ÈµÈ ³× °³ÀÇ ¿ä¼Ò·Î Æò¸é »ý¼ºÇÏ±â
+        FORCEINLINE explicit constexpr
+        Plane(const Vector3& InNormal, float InDistance) : Normal(InNormal), D(InDistance) {
+            assert(InNormal.SizeSquared() == 1);
+        } // ï¿½ï¿½ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½Ò·ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½
+        FORCEINLINE explicit constexpr Plane(const Vector3& InNormal, Vector3 InPlanePoint); // ï¿½ï¿½ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½Ò·ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½
+        explicit Plane(const Vector3& InPoint1, const Vector3& InPoint2, const Vector3& InPoint3);
+        explicit Plane(const Vector4& InVector4); // ï¿½ï¿½ï¿½ï¿½È­ï¿½Èµï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ò·ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½
 
 	FORCEINLINE constexpr float Distance(const Vector3& InPoint) const;
 	FORCEINLINE constexpr bool IsOutside(const Vector3& InPoint) const;
 
-private:
-	void Normalize();
+    private:
+        void Normalize();
 
-public:
-	Vector3 Normal = Vector3::UnitY;
-	float D = 0.f; 
-};
+    public:
+        Vector3 Normal = Vector3::UnitY;
+        float D = 0.f;
+    };
 
-FORCEINLINE constexpr Plane::Plane(const Vector3& InNormal, Vector3 InPlanePoint) : Normal(InNormal)
-{
-	assert(InNormal.SizeSquared() == 1);
-	D = -Normal.Dot(InPlanePoint);
-}
+    FORCEINLINE constexpr Plane::Plane(const Vector3& InNormal, Vector3 InPlanePoint) : Normal(InNormal) {
+        assert(InNormal.SizeSquared() == 1);
+        D = -Normal.Dot(InPlanePoint);
+    }
 
-FORCEINLINE constexpr float Plane::Distance(const Vector3& InPoint) const
-{
-	return Normal.Dot(InPoint) + D;
-}
+FORCEINLINE constexpr float Plane::Distance(const Vector3& InPoint) const {
+        return Normal.Dot(InPoint) + D;
+    }
 
-FORCEINLINE constexpr bool Plane::IsOutside(const Vector3& InPoint) const
-{
-	return Distance(InPoint) > 0.f;
-}
-
+FORCEINLINE constexpr bool Plane::IsOutside(const Vector3& InPoint) const {
+        return Distance(InPoint) > 0.f;
+    }
 }
